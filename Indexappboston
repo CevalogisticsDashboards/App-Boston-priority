@@ -1,0 +1,759 @@
+    <!DOCTYPE html>
+    <html lang="pt-BR">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Sistema de Deliveries</title>
+        <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+        <style>
+            
+            * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background-color: #f0f2f5;
+        }
+
+        .auth-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .auth-card {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .auth-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .logo {
+            width: 60px;
+            height: 60px;
+            margin-bottom: 1rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #333;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        .auth-button {
+            width: 100%;
+            padding: 0.75rem;
+            background: #000;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            margin-bottom: 1rem;
+        }
+
+        .auth-link {
+            text-align: center;
+            color: #666;
+        }
+
+        .auth-link a {
+            color: #000;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        /* Resto dos seus estilos existentes aqui */
+        /* ... */
+
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+                font-family: Arial, sans-serif;
+            }
+
+            body {
+                background-color: #f0f2f5;
+            }
+
+            .header {
+                background-color: #4a90e2;
+                color: white;
+                padding: 1rem;
+                text-align: center;
+                position: fixed;
+                top: 0;
+                width: 100%;
+                z-index: 100;
+            }
+
+            .content {
+                margin-top: 60px;
+                margin-bottom: 70px;
+                padding: 1rem;
+            }
+
+            .delivery-list {
+                display: flex;
+                flex-direction: column;
+                gap: 1rem;
+                padding: 1rem;
+            }
+
+            .delivery-card {
+                background: white;
+                border-radius: 8px;
+                padding: 1rem;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+
+            .delivery-card h3 {
+                margin-bottom: 0.5rem;
+                color: #333;
+            }
+
+            .delivery-info {
+                margin-bottom: 0.5rem;
+                color: #666;
+            }
+
+            .button-group {
+                display: flex;
+                gap: 0.5rem;
+                flex-wrap: wrap;
+                margin-top: 1rem;
+            }
+
+            .btn {
+                padding: 0.5rem 1rem;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+                font-weight: bold;
+                flex: 1;
+                min-width: 80px;
+                color: white;
+            }
+
+            .btn-edit { background-color: #2196F3; }
+            .btn-cancel { background-color: #ff9800; }
+            .btn-finish { background-color: #4CAF50; }
+            .btn-delete { background-color: #f44336; }
+
+            .navigation {
+                position: fixed;
+                bottom: 0;
+                width: 100%;
+                background: white;
+                display: flex;
+                justify-content: space-around;
+                padding: 1rem;
+                box-shadow: 0 -2px 4px rgba(0,0,0,0.1);
+            }
+
+            .nav-button {
+                border: none;
+                background: none;
+                padding: 0.5rem 1rem;
+                color: #666;
+                cursor: pointer;
+            }
+
+            .nav-button.active {
+                color: #4a90e2;
+                border-bottom: 2px solid #4a90e2;
+            }
+
+            .fab {
+                position: fixed;
+                bottom: 80px;
+                right: 20px;
+                width: 56px;
+                height: 56px;
+                border-radius: 50%;
+                background: #4a90e2;
+                color: white;
+                border: none;
+                font-size: 24px;
+                cursor: pointer;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 1000;
+            }
+
+            .modal {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0,0,0,0.5);
+                z-index: 1000;
+            }
+
+            .modal-content {
+                position: relative;
+                background: white;
+                margin: 20px;
+                padding: 20px;
+                border-radius: 8px;
+                max-width: 500px;
+                margin: 50px auto;
+                max-height: 90vh;
+                overflow-y: auto;
+            }
+
+            .form-group {
+                margin-bottom: 1rem;
+            }
+
+            .form-group label {
+                display: block;
+                margin-bottom: 0.5rem;
+                color: #333;
+            }
+
+            .form-group input,
+            .form-group select {
+                width: 100%;
+                padding: 0.5rem;
+                border: 1px solid #ddd;
+                border-radius: 4px;
+            }
+
+            .modal-buttons {
+                display: flex;
+                gap: 1rem;
+                margin-top: 1rem;
+            }
+
+            @media (min-width: 768px) {
+                .delivery-list {
+                    max-width: 800px;
+                    margin: 0 auto;
+                }
+            }
+        </style>
+    </head>
+    <body>
+
+<!-- Tela de Login -->
+<div id="loginScreen" class="auth-container">
+    <div class="auth-card">
+        <div class="auth-header">
+            <svg class="logo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/>
+                <path d="M12 16v-4M12 8h.01"/>
+            </svg>
+            <h1>Login</h1>
+        </div>
+        <form id="loginForm" onsubmit="handleLogin(event)">
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" id="loginEmail" required>
+            </div>
+            <div class="form-group">
+                <label>Senha</label>
+                <input type="password" id="loginPassword" required>
+            </div>
+            <button type="submit" class="auth-button">Login</button>
+        </form>
+        <p class="auth-link">
+            Não tem uma conta? <a href="#" onclick="showSignUp()">Cadastre-se</a>
+        </p>
+    </div>
+</div>
+
+<!-- Tela de Cadastro -->
+<div id="signupScreen" class="auth-container" style="display: none;">
+    <div class="auth-card">
+        <div class="auth-header">
+            <svg class="logo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/>
+                <path d="M12 8v8M8 12h8"/>
+            </svg>
+            <h1>Cadastro</h1>
+        </div>
+        <form id="signupForm" onsubmit="handleSignUp(event)">
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" id="signupEmail" required>
+            </div>
+            <div class="form-group">
+                <label>Senha</label>
+                <input type="password" id="signupPassword" required>
+            </div>
+            <button type="submit" class="auth-button">Cadastrar</button>
+        </form>
+        <p class="auth-link">
+            Já tem uma conta? <a href="#" onclick="showLogin()">Faça login</a>
+        </p>
+    </div>
+</div>
+
+
+
+
+
+        <div class="header">
+            <h1>Sistema de Deliveries</h1>
+        </div>
+
+        <div class="content">
+            <div class="delivery-list" id="delivery-list"></div>
+        </div>
+
+        <button class="fab" onclick="openModal('add')">+</button>
+
+        <div class="navigation">
+            <button class="nav-button active" onclick="changeTab('Pendente')">Pendentes</button>
+            <button class="nav-button" onclick="changeTab('Finalizado')">Finalizados</button>
+            <button class="nav-button" onclick="changeTab('Cancelado')">Cancelados</button>
+        </div>
+
+        <div id="app" style="display: none;"></div>
+
+        <!-- Modal de Formulário -->
+        <div id="formModal" class="modal">
+            <div class="modal-content">
+                <h2 id="modalTitle">Adicionar Registro</h2>
+                <form id="deliveryForm">
+                    <input type="hidden" id="id">
+                    <div class="form-group">
+                        <label>Data solicitada:</label>
+                        <input type="date" id="data_solicitada" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Nº da delivery:</label>
+                        <input type="text" id="numero_delivery" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Data e hora do corte:</label>
+                        <input type="datetime-local" id="data_hora_corte" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Solicitante:</label>
+                        <input type="text" id="solicitante" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Data da finalização:</label>
+                        <input type="date" id="data_finalizacao">
+                    </div>
+                    <div class="form-group">
+                        <label>Status:</label>
+                        <select id="status" required>
+                            <option value="Pendente">Pendente</option>
+                            <option value="Finalizado">Finalizado</option>
+                            <option value="Cancelado">Cancelado</option>
+                        </select>
+                    </div>
+                    <div class="form-group" id="motivoCancelamentoGroup" style="display: none;">
+                        <label>Motivo de cancelamento:</label>
+                        <select id="motivo_cancelamento">
+                            <option value="">Selecione um motivo</option>
+                            <option value="Cliente desistiu">Cliente desistiu</option>
+                            <option value="Erro no pedido">Erro no pedido</option>
+                            <option value="Fora da área de entrega">Fora da área de entrega</option>
+                            <option value="Produto indisponível">Produto indisponível</option>
+                            <option value="Outros">Outros</option>
+                        </select>
+                    </div>
+                    <div class="modal-buttons">
+                        <button type="button" class="btn btn-finish" onclick="salvarRegistro()">Salvar</button>
+                        <button type="button" class="btn btn-cancel" onclick="closeModal('form')">Cancelar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Modal de Cancelamento -->
+        <div id="cancelModal" class="modal">
+            <div class="modal-content">
+                <h2>Cancelar Delivery</h2>
+                <div class="form-group">
+                    <label>Motivo do cancelamento:</label>
+                    <select id="cancel_motivo">
+                        <option value="">Selecione um motivo</option>
+                        <option value="Cliente desistiu">Cliente desistiu</option>
+                        <option value="Erro no pedido">Erro no pedido</option>
+                        <option value="Fora da área de entrega">Fora da área de entrega</option>
+                        <option value="Produto indisponível">Produto indisponível</option>
+                        <option value="Outros">Outros</option>
+                    </select>
+                </div>
+                <div class="modal-buttons">
+                    <button class="btn btn-finish" onclick="confirmarCancelamento()">Confirmar</button>
+                    <button class="btn btn-cancel" onclick="closeModal('cancel')">Cancelar</button>
+                </div>
+            </div>
+        </div>
+
+        <script>
+
+            // Variáveis globais
+            let currentTab = 'Pendente';
+            let currentCancelId = null;
+
+            // Inicialização do Supabase
+        const { createClient } = supabase;
+        const supabaseClient = createClient(
+            'https://xrhktibidyspiunomaqp.supabase.co',
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhyaGt0aWJpZHlzcGl1bm9tYXFwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzI0Njg4NzUsImV4cCI6MjA0ODA0NDg3NX0.1zrZ1hrCGT0djyz5vPENoR3GyJgmhhrWqoVthYEd5Rs'
+        );
+
+        // Verificar sessão ao carregar a página
+        document.addEventListener('DOMContentLoaded', async () => {
+            const { data: { session }, error } = await supabaseClient.auth.getSession();
+            if (session) {
+                showApp();
+            } else {
+                showLogin();
+            }
+        });
+
+        // Funções de navegação
+        function showLogin() {
+            document.getElementById('loginScreen').style.display = 'flex';
+            document.getElementById('signupScreen').style.display = 'none';
+            document.getElementById('app').style.display = 'none';
+        }
+
+        function showSignUp() {
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('signupScreen').style.display = 'flex';
+            document.getElementById('app').style.display = 'none';
+        }
+
+        function showApp() {
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('signupScreen').style.display = 'none';
+            document.getElementById('app').style.display = 'block';
+            carregarRegistros(); // Carrega os dados após login
+        }
+
+        // Funções de autenticação
+        async function handleLogin(event) {
+            event.preventDefault();
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+
+            try {
+                const { data, error } = await supabaseClient.auth.signInWithPassword({
+                    email,
+                    password
+                });
+
+                if (error) throw error;
+                showApp();
+            } catch (error) {
+                alert('Erro no login: ' + error.message);
+            }
+        }
+
+        async function handleSignUp(event) {
+            event.preventDefault();
+            const email = document.getElementById('signupEmail').value;
+            const password = document.getElementById('signupPassword').value;
+
+            try {
+                const { data, error } = await supabaseClient.auth.signUp({
+                    email,
+                    password
+                });
+
+                if (error) throw error;
+                alert('Cadastro realizado com sucesso! Verifique seu email.');
+                showLogin();
+            } catch (error) {
+                alert('Erro no cadastro: ' + error.message);
+            }
+        }
+
+        async function handleLogout() {
+            try {
+                const { error } = await supabaseClient.auth.signOut();
+                if (error) throw error;
+                showLogin();
+            } catch (error) {
+                alert('Erro ao sair: ' + error.message);
+            }
+        }
+
+        // Modificação nas funções CRUD existentes para incluir verificação de autenticação
+        async function carregarRegistros() {
+            const { data: { session } } = await supabaseClient.auth.getSession();
+            if (!session) {
+                showLogin();
+                return;
+            }
+
+            try {
+                const { data, error } = await supabaseClient
+                    .from('Registros')
+                    .select('*')
+                    .eq('Status', currentTab)
+                    .order('created_at', { ascending: false });
+
+                if (error) throw error;
+
+                // Resto do seu código de carregamento aqui...
+
+                    const container = document.getElementById('delivery-list');
+                    container.innerHTML = '';
+
+                    if (data.length === 0) {
+                        container.innerHTML = '<div class="delivery-card">Nenhuma delivery encontrada nesta categoria</div>';
+                        return;
+                    }
+
+                    data.forEach(registro => {
+                        const card = document.createElement('div');
+                        card.className = 'delivery-card';
+                        card.innerHTML = `
+                            <h3>Delivery #${registro['Nº da delivery']}</h3>
+                            <div class="delivery-info">
+                                <p><strong>Data solicitada:</strong> ${formatarData(registro['Data solicitada'])}</p>
+                                <p><strong>Data e hora do corte:</strong> ${formatarDataHora(registro['Data e hora do corte'])}</p>
+                                <p><strong>Solicitante:</strong> ${registro['Solicitante']}</p>
+                                ${registro['Status'] === 'Finalizado' ? 
+                                    `<p><strong>Data da finalização:</strong> ${formatarData(registro['Data da finalização'])}</p>` : ''}
+                                ${registro['Status'] === 'Cancelado' ? 
+                                    `<p><strong>Motivo:</strong> ${registro['Motivo de cancelamento']}</p>` : ''}
+                            </div>
+                            ${currentTab === 'Pendente' ? `
+                                <div class="button-group">
+                                    <button class="btn btn-edit" onclick="editarRegistro('${registro.id}')">Editar</button>
+                                    <button class="btn btn-finish" onclick="finalizarRegistro('${registro.id}')">Finalizar</button>
+                                    <button class="btn btn-cancel" onclick="abrirModalCancelamento('${registro.id}')">Cancelar</button>
+                                    <button class="btn btn-delete" onclick="excluirRegistro('${registro.id}')">Excluir</button>
+                                </div>
+                            ` : ''}
+                        `;
+                        container.appendChild(card);
+                    });
+                } catch (error) {
+                    console.error('Erro ao carregar registros:', error);
+                    alert('Erro ao carregar registros: ' + error.message);
+                }
+            }
+            // Modificar outras funções CRUD similarmente...
+            function changeTab(tab) {
+                currentTab = tab;
+                document.querySelectorAll('.nav-button').forEach(btn => {
+                    btn.classList.remove('active');
+                    if (btn.textContent.includes(tab)) {
+                        btn.classList.add('active');
+                    }
+                });
+                carregarRegistros();
+            }
+
+            function openModal(type) {
+                if (type === 'add') {
+                    limparFormulario();
+                    document.getElementById('modalTitle').textContent = 'Adicionar Registro';
+                }
+                document.getElementById('formModal').style.display = 'block';
+            }
+
+            function closeModal(type) {
+                document.getElementById(type + 'Modal').style.display = 'none';
+                if (type === 'form') {
+                    limparFormulario();
+                }
+            }
+
+            async function salvarRegistro() {
+                const id = document.getElementById('id').value;
+                const registro = {
+                    'Data solicitada': document.getElementById('data_solicitada').value,
+                    'Nº da delivery': document.getElementById('numero_delivery').value,
+                    'Data e hora do corte': document.getElementById('data_hora_corte').value,
+                    'Solicitante': document.getElementById('solicitante').value,
+                    'Data da finalização': document.getElementById('data_finalizacao').value || null,
+                    'Status': document.getElementById('status').value,
+                    'Motivo de cancelamento': document.getElementById('motivo_cancelamento').value || null
+                };
+
+                try {
+                    let response;
+                    if (id) {
+                        response = await supabaseClient
+                            .from('Registros')
+                            .update(registro)
+                            .eq('id', id);
+                    } else {
+                        response = await supabaseClient
+                            .from('Registros')
+                            .insert([registro]);
+                    }
+
+                    if (response.error) throw response.error;
+
+                    alert(id ? 'Registro atualizado com sucesso!' : 'Registro criado com sucesso!');
+                    closeModal('form');
+                    carregarRegistros();
+                } catch (error) {
+                    console.error('Erro ao salvar registro:', error);
+                    alert('Erro ao salvar registro: ' + error.message);
+                }
+            }
+
+            async function editarRegistro(id) {
+                try {
+                    const { data, error } = await supabaseClient
+                        .from('Registros')
+                        .select('*')
+                        .eq('id', id)
+                        .single();
+
+                    if (error) throw error;
+
+                    document.getElementById('id').value = data.id;
+                    document.getElementById('data_solicitada').value = data['Data solicitada'];
+                    document.getElementById('numero_delivery').value = data['Nº da delivery'];
+                    document.getElementById('data_hora_corte').value = formatarDataHoraInput(data['Data e hora do corte']);
+                    document.getElementById('solicitante').value = data['Solicitante'];
+                    document.getElementById('data_finalizacao').value = data['Data da finalização'] || '';
+                    document.getElementById('status').value = data['Status'];
+                    document.getElementById('motivo_cancelamento').value = data['Motivo de cancelamento'] || '';
+
+                    document.getElementById('modalTitle').textContent = 'Editar Registro';
+                    openModal('form');
+                } catch (error) {
+                    console.error('Erro ao carregar registro para edição:', error);
+                    alert('Erro ao carregar registro para edição: ' + error.message);
+                }
+            }
+
+            async function excluirRegistro(id) {
+                if (!confirm('Tem certeza que deseja excluir este registro?')) return;
+
+                try {
+                    const { error } = await supabaseClient
+                        .from('Registros')
+                        .delete()
+                        .eq('id', id);
+
+                    if (error) throw error;
+
+                    alert('Registro excluído com sucesso!');
+                    carregarRegistros();
+                } catch (error) {
+                    console.error('Erro ao excluir registro:', error);
+                    alert('Erro ao excluir registro: ' + error.message);
+                }
+            }
+
+            async function finalizarRegistro(id) {
+                try {
+                    const hoje = new Date().toISOString().split('T')[0];
+                    const { error } = await supabaseClient
+                        .from('Registros')
+                        .update({
+                            'Status': 'Finalizado',
+                            'Data da finalização': hoje
+                        })
+                        .eq('id', id);
+
+                    if (error) throw error;
+
+                    alert('Registro finalizado com sucesso!');
+                    carregarRegistros();
+                } catch (error) {
+                    console.error('Erro ao finalizar registro:', error);
+                    alert('Erro ao finalizar registro: ' + error.message);
+                }
+            }
+
+            function abrirModalCancelamento(id) {
+                currentCancelId = id;
+                document.getElementById('cancelModal').style.display = 'block';
+                document.getElementById('cancel_motivo').value = '';
+            }
+
+            async function confirmarCancelamento() {
+                const motivo = document.getElementById('cancel_motivo').value;
+                if (!motivo) {
+                    alert('Por favor, selecione um motivo para o cancelamento.');
+                    return;
+                }
+
+                try {
+                    const { error } = await supabaseClient
+                        .from('Registros')
+                        .update({
+                            'Status': 'Cancelado',
+                            'Motivo de cancelamento': motivo
+                        })
+                        .eq('id', currentCancelId);
+
+                    if (error) throw error;
+
+                    alert('Registro cancelado com sucesso!');
+                    closeModal('cancel');
+                    carregarRegistros();
+                } catch (error) {
+                    console.error('Erro ao cancelar registro:', error);
+                    alert('Erro ao cancelar registro: ' + error.message);
+                }
+            }
+
+            function limparFormulario() {
+                document.getElementById('id').value = '';
+                document.getElementById('data_solicitada').value = '';
+                document.getElementById('numero_delivery').value = '';
+                document.getElementById('data_hora_corte').value = '';
+                document.getElementById('solicitante').value = '';
+                document.getElementById('data_finalizacao').value = '';
+                document.getElementById('status').value = 'Pendente';
+                document.getElementById('motivo_cancelamento').value = '';
+                document.getElementById('motivoCancelamentoGroup').style.display = 'none';
+            }
+
+            function formatarData(data) {
+                if (!data) return '';
+                return new Date(data).toLocaleDateString('pt-BR');
+            }
+
+            function formatarDataHora(dataHora) {
+                if (!dataHora) return '';
+                return new Date(dataHora).toLocaleString('pt-BR');
+            }
+
+            function formatarDataHoraInput(dataHora) {
+                if (!dataHora) return '';
+                const data = new Date(dataHora);
+                return data.toISOString().slice(0, 16);
+            }
+        </script>
+    </body>
+    </html>
