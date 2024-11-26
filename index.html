@@ -1,12 +1,16 @@
+
     <!DOCTYPE html>
     <html lang="pt-BR">
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Priority Deliveries App</title>
+        <!-- Importação da biblioteca Supabase para autenticação e gerenciamento de banco de dados -->
         <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
         <style>
+            /* Estilos globais para reset e configurações padrão */
             
+
             * {
             margin: 0;
             padding: 0;
@@ -17,6 +21,194 @@
         body {
             background-color: #f0f2f5;
         }
+
+        /* Reset e configurações globais */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    background-color: #f0f2f5;
+}
+
+/* Estilos do Botão Hambúrguer */
+.hamburger-btn {
+    position: fixed;
+    top: 15px;
+    left: 15px;
+    background: none;
+    border: none;
+    z-index: 1300;
+    cursor: pointer;
+    display: none
+   
+}
+
+.hamburger-icon {
+    display: block;
+    width: 25px;
+    height: 3px;
+    background-color: #ffffff;
+    position: relative;
+    transition: all 0.3s;
+}
+
+.hamburger-icon::before,
+.hamburger-icon::after {
+    content: '';
+    display: block;
+    width: 25px;
+    height: 3px;
+    background-color: #ffffff;
+    position: absolute;
+    transition: all 0.3s;
+}
+
+.hamburger-icon::before {
+    top: -8px;
+}
+
+.hamburger-icon::after {
+    bottom: -8px;
+}
+
+.hamburger-btn.active .hamburger-icon {
+    background-color: transparent;
+}
+
+.hamburger-btn.active .hamburger-icon::before {
+    transform: rotate(45deg);
+    top: 0;
+}
+
+.hamburger-btn.active .hamburger-icon::after {
+    transform: rotate(-45deg);
+    bottom: 0;
+}
+
+.developer-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.80);
+    z-index: 1400;
+    display: none;
+}
+
+.developer-modal-overlay.active {
+    display: block;
+}
+
+/* Estilos da Sidebar */
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: -400px; /* Esconde inicialmente a sidebar */
+    width: 400px;
+    height: 100%;
+    background-color: #002060;
+    color: white;
+    transition: left 0.3s ease;
+    z-index: 1200;
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar.open {
+    left: 0;
+}
+
+/* Cabeçalho da Sidebar */
+.sidebar-header {
+    padding: 20px 40px; /* Aumente o padding horizontal */
+    background-color: rgba(255,255,255,0.1);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+}
+
+.user-avatar {
+    width: 50px;
+    height: 50px;
+    background-color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 15px;
+    color: #002060;
+    font-weight: bold;
+}
+
+.sidebar-menu {
+    flex-grow: 1;
+    padding: 20px;
+}
+
+.sidebar-menu button {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    background-color: transparent;
+    border: none;
+    color: white;
+    text-align: left;
+    cursor: pointer;
+}
+
+.sidebar-menu button:hover {
+    background-color: rgba(255,255,255,0.1);
+}
+
+/* Overlay */
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.80);
+    z-index: 1100;
+    display: none;
+    box-shadow: 0 2px 4px #002060;
+}
+
+.overlay.active {
+    display: block;
+}
+
+/* Modal do Desenvolvedor */
+.developer-modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    padding: 30px;
+    border-radius: 10px;
+    width: 90%;
+    max-width: 500px;
+    z-index: 1500;
+    display: none;
+    box-shadow: 0 2px 4px #002060;
+}
+
+.developer-modal.open {
+    display: block;
+}
+
+/* Resto do seu CSS existente... */
+/* (mantenha o restante dos estilos que já estavam no documento) */
 
         .auth-container {
             display: flex;
@@ -213,6 +405,7 @@
                 align-items: center;
                 justify-content: center;
                 z-index: 1000;
+                box-shadow: 0 2px 4px #002060;
             }
 
             .modal {
@@ -222,8 +415,9 @@
                 left: 0;
                 width: 100%;
                 height: 100%;
-                background: rgba(0,0,0,0.5);
+                background: rgba(0,0,0,0.80);
                 z-index: 1000;
+                box-shadow: 0 2px 4px #002060;
             }
 
             .modal-content {
@@ -236,6 +430,7 @@
                 margin: 50px auto;
                 max-height: 90vh;
                 overflow-y: auto;
+                box-shadow: 0 2px 4px #002060;
             }
 
             .modal-close {
@@ -250,6 +445,7 @@
     line-height: 1;
     padding: 0;
     z-index: 10;
+    box-shadow: 0 2px 4px #002060;
 }
 
 .modal-close:hover {
@@ -334,6 +530,61 @@
         </style>
     </head>
     <body>
+
+        <!-- Botão hambúrguer para abrir a sidebar -->
+        <button class="hamburger-btn" onclick="toggleSidebar()">
+            <span class="hamburger-icon"></span>
+        </button>
+
+        <!-- Sidebar com informações do usuário e menu -->
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="user-info">
+                    <!-- Avatar com iniciais do usuário -->
+                    <div class="user-avatar" id="userInitials">UE</div>
+                    <div>
+                        <!-- Email do usuário logado -->
+                        <div id="userEmail">usuario@email.com</div>
+                    </div>
+                </div>
+            </div>
+            <div class="sidebar-menu">
+                <!-- Botões do menu da sidebar -->
+                <button onclick="openDeveloperModal()">Sobre o Desenvolvedor</button>
+                <button onclick="handleLogout()">Logout</button>
+            </div>
+        </div>
+
+        <!-- Overlay para escurecer o fundo quando a sidebar está aberta -->
+        <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+        
+<!-- Overlay for Developer Modal -->
+<div id="developerModalOverlay" class="developer-modal-overlay"></div>
+
+<!-- Modal with developer information -->
+<div class="developer-modal" id="developerModal">
+    <h2>Sobre o Desenvolvedor</h2>
+    <p>Aplicativo desenvolvido para gerenciamento de deliveries prioritárias.</p>
+    <p>Desenvolvedor: [Seu Nome]</p>
+    <p>Versão: 1.0.0</p>
+    <p>Contato: [eltoncoelho.silva@cevalogistics.com]</p>
+    <button onclick="closeDeveloperModal()" class="btn btn-finish" style="margin-top: 20px;">Fechar</button>
+</div>
+
+<!-- Todo o HTML anterior do documento original permanece aqui -->
+
+        <!-- Modal com informações do desenvolvedor -->
+        <div class="developer-modal" id="developerModal">
+            <h2>Sobre o Desenvolvedor</h2>
+            <p>Aplicativo desenvolvido para gerenciamento de deliveries prioritárias.</p>
+            <p>Desenvolvedor: [Seu Nome]</p>
+            <p>Versão: 1.0.0</p>
+            <p>Contato: [Seu Email ou Contato]</p>
+            <button onclick="closeDeveloperModal()" class="btn btn-finish" style="margin-top: 20px;">Fechar</button>
+        </div>
+
+        <!-- Todo o HTML anterior do documento original permanece aqui -->
+        <!-- (Tela de Login, Tela de Cadastro, Cabeçalho, Conteúdo, Modais, etc.) -->
 
 <!-- Tela de Login -->
 <div id="loginScreen" class="auth-container">
@@ -493,6 +744,7 @@
             // Variáveis globais
             let currentTab = 'Pendente';
             let currentCancelId = null;
+            let currentUser = null; // Declare aqui a variável currentUser para capturar o nome do usuario logado
 
             // Inicialização do Supabase
         const { createClient } = supabase;
@@ -500,12 +752,38 @@
             'https://xrhktibidyspiunomaqp.supabase.co',
             'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhyaGt0aWJpZHlzcGl1bm9tYXFwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzI0Njg4NzUsImV4cCI6MjA0ODA0NDg3NX0.1zrZ1hrCGT0djyz5vPENoR3GyJgmhhrWqoVthYEd5Rs'
         );
+// Funções de interação com a sidebar e modal do desenvolvedor
+function toggleSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('overlay');
+    const hamburgerBtn = document.querySelector('.hamburger-btn');
 
+    sidebar.classList.toggle('open');
+    overlay.classList.toggle('active');
+    hamburgerBtn.classList.toggle('active');
+}
+
+function openDeveloperModal() {
+    const developerModal = document.getElementById('developerModal');
+    const developerModalOverlay = document.getElementById('developerModalOverlay');
+    developerModal.classList.add('open');
+    developerModalOverlay.classList.add('active');
+    toggleSidebar(); // Closes the sidebar when opening the modal
+}
+
+function closeDeveloperModal() {
+    const developerModal = document.getElementById('developerModal');
+    const developerModalOverlay = document.getElementById('developerModalOverlay');
+    developerModal.classList.remove('open');
+    developerModalOverlay.classList.remove('active');
+}
         // Verificar sessão ao carregar a página
-document.addEventListener('DOMContentLoaded', async () => {
+        document.addEventListener('DOMContentLoaded', async () => {
     try {
         const { data: { session } } = await supabaseClient.auth.getSession();
         if (session) {
+            currentUser = session.user;
+            updateUserInfo(); // Chame a função updateUserInfo()
             showApp();
         } else {
             showLogin();
@@ -518,10 +796,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         // Funções de navegação
         function showLogin() {
-  document.getElementById('loginScreen').style.display = 'flex';
-  document.getElementById('loginScreen').classList.add('login-screen');
-  document.getElementById('signupScreen').style.display = 'none';
-  document.getElementById('app').style.display = 'none';
+    document.getElementById('loginScreen').style.display = 'flex';
+    document.getElementById('loginScreen').classList.add('login-screen');
+    document.getElementById('signupScreen').style.display = 'none';
+    document.getElementById('app').style.display = 'none';
+    document.querySelector('.hamburger-btn').style.display = 'none'; // Oculta o botão de hambúrguer
+
 }
 
         function showSignUp() {
@@ -531,31 +811,53 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
 
         function showApp() {
-  document.getElementById('loginScreen').style.display = 'none';
-  document.getElementById('loginScreen').classList.remove('login-screen');
-  document.getElementById('signupScreen').style.display = 'none';
-  document.getElementById('app').style.display = 'block';
-  carregarRegistros(); // Carrega os dados após login
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('loginScreen').classList.remove('login-screen');
+    document.getElementById('signupScreen').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    document.querySelector('.hamburger-btn').style.display = 'block'; // Exibe o botão de hambúrguer
+    carregarRegistros(); // Carrega os dados após login
+}
+
+function updateUserInfo() {
+    const userInitials = document.getElementById('userInitials');
+    const userEmail = document.getElementById('userEmail');
+
+    if (currentUser) {
+        const initials = getInitials(currentUser.email);
+        userInitials.textContent = initials;
+        userEmail.textContent = currentUser.email;
+    } else {
+        userInitials.textContent = 'UE';
+        userEmail.textContent = 'usuario@email.com';
+    }
+}
+
+function getInitials(email) {
+    const parts = email.split('@')[0].split('.');
+    return parts.map(part => part.charAt(0).toUpperCase()).join('');
 }
 
         // Funções de autenticação
         async function handleLogin(event) {
-            event.preventDefault();
-            const email = document.getElementById('loginEmail').value;
-            const password = document.getElementById('loginPassword').value;
+    event.preventDefault();
+    const email = document.getElementById('loginEmail').value;
+    const password = document.getElementById('loginPassword').value;
 
-            try {
-                const { data, error } = await supabaseClient.auth.signInWithPassword({
-                    email,
-                    password
-                });
+    try {
+        const { data, error } = await supabaseClient.auth.signInWithPassword({
+            email,
+            password
+        });
 
-                if (error) throw error;
-                showApp();
-            } catch (error) {
-                alert('Erro no login: ' + error.message);
-            }
-        }
+        if (error) throw error;
+        currentUser = data.user; // Armazene as informações do usuário
+        updateUserInfo(); // Chame a função updateUserInfo()
+        showApp();
+    } catch (error) {
+        alert('Erro no login: ' + error.message);
+    }
+}
 
         async function handleSignUp(event) {
     event.preventDefault();
@@ -582,15 +884,16 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 }
 
-        async function handleLogout() {
-            try {
-                const { error } = await supabaseClient.auth.signOut();
-                if (error) throw error;
-                showLogin();
-            } catch (error) {
-                alert('Erro ao sair: ' + error.message);
-            }
-        }
+async function handleLogout() {
+    try {
+        const { error } = await supabaseClient.auth.signOut();
+        if (error) throw error;
+        toggleSidebar(); // Fecha a sidebar antes de exibir a tela de login
+        showLogin();
+    } catch (error) {
+        alert('Erro ao sair: ' + error.message);
+    }
+}
 
         // Modificação nas funções CRUD existentes para incluir verificação de autenticação
         async function carregarRegistros() {
