@@ -37,14 +37,22 @@ body {
 /* Estilos do Botão Hambúrguer */
 .hamburger-btn {
     position: fixed;
-    top: 15px;
-    left: 15px;
+    top: 10px;
+    left: 10px;
     background: none;
     border: none;
     z-index: 1300;
     cursor: pointer;
-    display: none
-   
+    display: block;
+    width: 50px;  /* Increased width */
+    height: 50px; /* Increased height */
+    padding: 10px;
+    border-radius: 50%; /* Optional: makes it circular */
+    transition: background-color 0.3s;
+}
+
+.hamburger-btn:hover {
+    background-color: rgba(255, 255, 255, 0.2); /* Optional: adds hover effect */
 }
 
 .hamburger-icon {
@@ -54,6 +62,7 @@ body {
     background-color: #ffffff;
     position: relative;
     transition: all 0.3s;
+    margin: 6px auto; /* Centers the icon within the larger button area */
 }
 
 .hamburger-icon::before,
@@ -88,6 +97,8 @@ body {
     transform: rotate(-45deg);
     bottom: 0;
 }
+
+
 
 .developer-modal-overlay {
     position: fixed;
@@ -125,7 +136,7 @@ body {
 
 /* Cabeçalho da Sidebar */
 .sidebar-header {
-    padding: 20px 40px; /* Aumente o padding horizontal */
+    padding: 50px 40px; /* Aumente o padding horizontal */
     background-color: rgba(255,255,255,0.1);
     display: flex;
     align-items: center;
@@ -145,14 +156,14 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-right: 15px;
+    margin-right: 30px;
     color: #002060;
     font-weight: bold;
 }
 
 .sidebar-menu {
     flex-grow: 1;
-    padding: 20px;
+    padding: 30px;
 }
 
 .sidebar-menu button {
@@ -564,10 +575,13 @@ body {
 <!-- Modal with developer information -->
 <div class="developer-modal" id="developerModal">
     <h2>Sobre o Desenvolvedor</h2>
-    <p>Aplicativo desenvolvido para gerenciamento de deliveries prioritárias.</p>
-    <p>Desenvolvedor: [Seu Nome]</p>
+    <br>
+    <p>Aplicativo desenvolvido para gerenciamento de pedidos de Prioridades no contrato Boston Scientific</p>
+    <br>
+    <p>Desenvolvedor: Elton coelho</p>
     <p>Versão: 1.0.0</p>
-    <p>Contato: [eltoncoelho.silva@cevalogistics.com]</p>
+    <p>e-mail corp: eltoncoelho.silva@cevalogistics.com</p>
+    <p>e-mail: elton490@gmail.com</p>
     <button onclick="closeDeveloperModal()" class="btn btn-finish" style="margin-top: 20px;">Fechar</button>
 </div>
 
