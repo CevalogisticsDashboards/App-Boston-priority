@@ -3,7 +3,7 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Sistema de Deliveries</title>
+        <title>Priority Deliveries</title>
         <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
         <style>
             
@@ -330,7 +330,7 @@
 
 
         <div class="header">
-            <h1>Sistema de Deliveries</h1>
+            <h1>Priority Deliveries</h1>
         </div>
 
         <div class="content">
@@ -434,14 +434,19 @@
         );
 
         // Verificar sessão ao carregar a página
-        document.addEventListener('DOMContentLoaded', async () => {
-            const { data: { session }, error } = await supabaseClient.auth.getSession();
-            if (session) {
-                showApp();
-            } else {
-                showLogin();
-            }
-        });
+document.addEventListener('DOMContentLoaded', async () => {
+    try {
+        const { data: { session } } = await supabaseClient.auth.getSession();
+        if (session) {
+            showApp();
+        } else {
+            showLogin();
+        }
+    } catch (error) {
+        console.error('Erro ao verificar sessão:', error);
+        showLogin();
+    }
+});
 
         // Funções de navegação
         function showLogin() {
