@@ -3,7 +3,7 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Priority Deliveries</title>
+        <title>Priority Deliveries App</title>
         <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
         <style>
             
@@ -32,7 +32,7 @@
             padding: 2rem;
             width: 100%;
             max-width: 400px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 6px #002060;
         }
 
         .auth-header {
@@ -67,7 +67,7 @@
         .auth-button {
             width: 100%;
             padding: 0.75rem;
-            background: #000;
+            background: #002060;
             color: white;
             border: none;
             border-radius: 8px;
@@ -102,7 +102,7 @@
             }
 
             .header {
-                background-color: #4a90e2;
+                background-color: #002060;
                 color: white;
                 padding: 1rem;
                 text-align: center;
@@ -129,7 +129,7 @@
                 background: white;
                 border-radius: 8px;
                 padding: 1rem;
-                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                box-shadow: 0 2px 4px #002060;
             }
 
             .delivery-card h3 {
@@ -162,8 +162,9 @@
 
             .btn-edit { background-color: #24292c; }
             .btn-cancel { background-color: #f44336; }
-            .btn-finish { background-color: #4CAF50; }
+            .btn-finish { background-color: #17761a; }
             .btn-delete { background-color: #f44336; }
+            .btn-save   { background-color: #002060; }
 
             .navigation {
                 position: fixed;
@@ -173,20 +174,26 @@
                 display: flex;
                 justify-content: space-around;
                 padding: 1rem;
-                box-shadow: 0 -2px 4px rgba(0,0,0,0.1);
+                box-shadow: 0 -2px 4px #002060;
             }
 
             .nav-button {
+                padding: 0.75rem 3.5rem; /* Aumentando o padding */
                 border: none;
                 background: none;
                 padding: 0.5rem 1rem;
                 color: #666;
                 cursor: pointer;
+                height: 2rem; /* Aumentando a altura */
             }
 
             .nav-button.active {
-                color: #4a90e2;
-                border-bottom: 2px solid #4a90e2;
+                padding: 0.75rem 2.5rem; /* Aumentando o padding */
+            background-color: #002060; /* Azul */
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 8px; /* Arredondando as bordas */
+            height: 2rem; /* Aumentando a altura */
             }
 
             .fab {
@@ -196,12 +203,12 @@
                 width: 56px;
                 height: 56px;
                 border-radius: 50%;
-                background: #4a90e2;
+                background: #002060;
                 color: white;
                 border: none;
                 font-size: 24px;
                 cursor: pointer;
-                box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+                box-shadow: 0 2px 4px #002060;
                 display: flex;
                 align-items: center;
                 justify-content: center;
@@ -230,6 +237,57 @@
                 max-height: 90vh;
                 overflow-y: auto;
             }
+
+            .modal-close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: #666;
+    line-height: 1;
+    padding: 0;
+    z-index: 10;
+}
+
+.modal-close:hover {
+    color: #000;
+}
+
+.modal-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.btn-save {
+    width: 200px;
+}
+.btn-confirm {
+  background-color: #002060; /* Azul escuro */
+  color: white;
+  width: 200px; /* Opcional: define uma largura fixa para o botão */
+}
+.modal-close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #666;
+  line-height: 1;
+  padding: 0;
+  z-index: 10;
+}
+
+.modal-close:hover {
+  color: #000;
+}
 
             .form-group {
                 margin-bottom: 1rem;
@@ -264,8 +322,14 @@
             .loading {
     text-align: center;
     padding: 20px;
-    color: #4a90e2;
+    color: #002060;
     font-weight: bold;
+}
+
+.login-screen ~ .content, 
+.login-screen ~ .navigation,
+.login-screen ~ .fab {
+  display: none;
 }
         </style>
     </head>
@@ -317,6 +381,10 @@
                 <label>Senha</label>
                 <input type="password" id="signupPassword" required>
             </div>
+            <div class="form-group">
+                <label>Confirmar Senha</label>
+                <input type="password" id="confirmPassword" required>
+            </div>
             <button type="submit" class="auth-button">Cadastrar</button>
         </form>
         <p class="auth-link">
@@ -330,7 +398,7 @@
 
 
         <div class="header">
-            <h1>Priority Deliveries</h1>
+            <h1>Priority Deliveries App</h1>
         </div>
 
         <div class="content">
@@ -340,85 +408,85 @@
         <button class="fab" onclick="openModal('add')">+</button>
 
         <div class="navigation">
-            <button class="nav-button active" onclick="changeTab('Pendente')">Pendentes</button>
-            <button class="nav-button" onclick="changeTab('Finalizado')">Finalizados</button>
-            <button class="nav-button" onclick="changeTab('Cancelado')">Cancelados</button>
-        </div>
+            <button class="nav-button active" onclick="changeTab('Pendentes')">Pendentes</button>
+            <button class="nav-button" onclick="changeTab('Finalizados')">Finalizados</button>
+            <button class="nav-button" onclick="changeTab('Cancelados')">Cancelados</button>
+          </div>
 
         <div id="app" style="display: none;"></div>
 
         <!-- Modal de Formulário -->
-        <div id="formModal" class="modal">
-            <div class="modal-content">
-                <h2 id="modalTitle">Adicionar Registro</h2>
-                <form id="deliveryForm">
-                    <input type="hidden" id="id">
-                    <div class="form-group">
-                        <label>Data solicitada:</label>
-                        <input type="date" id="data_solicitada" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Nº da delivery:</label>
-                        <input type="text" id="numero_delivery" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Data e hora do corte:</label>
-                        <input type="datetime-local" id="data_hora_corte" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Solicitante:</label>
-                        <input type="text" id="solicitante" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Data da finalização:</label>
-                        <input type="date" id="data_finalizacao">
-                    </div>
-                    <div class="form-group">
-                        <label>Status:</label>
-                        <select id="status" required>
-                            <option value="Pendente">Pendente</option>
-                            <option value="Finalizado">Finalizado</option>
-                            <option value="Cancelado">Cancelado</option>
-                        </select>
-                    </div>
-                    <div class="form-group" id="motivoCancelamentoGroup" style="display: none;">
-                        <label>Motivo de cancelamento:</label>
-                        <select id="motivo_cancelamento">
-                            <option value=""></option>
-                            <option value="Procedimento Cancelado">Procedimento Cancelado</option>
-                            <option value="Transferência entre Hospitais">Transferência entre Hospitais</option>
-                            <option value="Pedido incorreto - VL09">Pedido incorreto - VL09</option>
-                            <option value="Procedimento reagendado">Procedimento reagendado</option>
-                        </select>
-                    </div>
-                    <div class="modal-buttons">
-                        <button type="button" class="btn btn-finish" onclick="salvarRegistro()">Salvar</button>
-                        <button type="button" class="btn btn-cancel" onclick="closeModal('form')">Cancelar</button>
-                    </div>
-                </form>
+<div id="formModal" class="modal">
+    <div class="modal-content">
+        <button class="modal-close" onclick="closeModal('form')">&times;</button>
+        <h2 id="modalTitle">Adicionar Registro</h2>
+        <form id="deliveryForm">
+            <input type="hidden" id="id">
+            <div class="form-group">
+                <label>Data solicitada:</label>
+                <input type="date" id="data_solicitada" required>
             </div>
-        </div>
+            <div class="form-group">
+                <label>Nº da delivery:</label>
+                <input type="text" id="numero_delivery" required>
+            </div>
+            <div class="form-group">
+                <label>Data e hora do corte:</label>
+                <input type="datetime-local" id="data_hora_corte" required>
+            </div>
+            <div class="form-group">
+                <label>Solicitante:</label>
+                <input type="text" id="solicitante" required>
+            </div>
+            <div class="form-group">
+                <label>Data da finalização:</label>
+                <input type="date" id="data_finalizacao">
+            </div>
+            <div class="form-group">
+                <label>Status:</label>
+                <select id="status" required>
+                    <option value="Pendente">Pendente</option>
+                    <option value="Finalizado">Finalizado</option>
+                    <option value="Cancelado">Cancelado</option>
+                </select>
+            </div>
+            <div class="form-group" id="motivoCancelamentoGroup" style="display: none;">
+                <label>Motivo de cancelamento:</label>
+                <select id="motivo_cancelamento">
+                    <option value=""></option>
+                    <option value="Procedimento Cancelado">Procedimento Cancelado</option>
+                    <option value="Transferência entre Hospitais">Transferência entre Hospitais</option>
+                    <option value="Pedido incorreto - VL09">Pedido incorreto - VL09</option>
+                    <option value="Procedimento reagendado">Procedimento reagendado</option>
+                </select>
+            </div>
+            <div class="modal-buttons">
+                <button class="btn btn-save" onclick="salvarRegistro()">Salvar</button>
+            </div>
+        </form>
+    </div>
+</div>
 
         <!-- Modal de Cancelamento -->
-        <div id="cancelModal" class="modal">
-            <div class="modal-content">
-                <h2>Cancelar Delivery</h2>
-                <div class="form-group">
-                    <label>Motivo do cancelamento:</label>
-                    <select id="cancel_motivo">
-                        <option value=""></option>
-                        <option value="Procedimento Cancelado">Procedimento Cancelado</option>
-                        <option value="Transferência entre Hospitais">Transferência entre Hospitais</option>
-                        <option value="Pedido incorreto - VL09">Pedido incorreto - VL09</option>
-                        <option value="Procedimento reagendado">Procedimento reagendado</option>
-                    </select>
-                </div>
-                <div class="modal-buttons">
-                    <button class="btn btn-finish" onclick="confirmarCancelamento()">Confirmar</button>
-                    <button class="btn btn-cancel" onclick="closeModal('cancel')">Cancelar</button>
-                </div>
-            </div>
-        </div>
+<div id="cancelModal" class="modal">
+    <div class="modal-content">
+      <button class="modal-close" onclick="closeModal('cancel')">&times;</button>
+      <h2>Cancelar Delivery</h2>
+      <div class="form-group">
+        <label>Motivo do cancelamento:</label>
+        <select id="cancel_motivo">
+          <option value=""></option>
+          <option value="Procedimento Cancelado">Procedimento Cancelado</option>
+          <option value="Transferência entre Hospitais">Transferência entre Hospitais</option>
+          <option value="Pedido incorreto - VL09">Pedido incorreto - VL09</option>
+          <option value="Procedimento reagendado">Procedimento reagendado</option>
+        </select>
+      </div>
+      <div class="modal-buttons">
+        <button class="btn btn-confirm" onclick="confirmarCancelamento()">Confirmar</button>
+      </div>
+    </div>
+  </div>
 
         <script>
 
@@ -450,10 +518,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         // Funções de navegação
         function showLogin() {
-            document.getElementById('loginScreen').style.display = 'flex';
-            document.getElementById('signupScreen').style.display = 'none';
-            document.getElementById('app').style.display = 'none';
-        }
+  document.getElementById('loginScreen').style.display = 'flex';
+  document.getElementById('loginScreen').classList.add('login-screen');
+  document.getElementById('signupScreen').style.display = 'none';
+  document.getElementById('app').style.display = 'none';
+}
 
         function showSignUp() {
             document.getElementById('loginScreen').style.display = 'none';
@@ -462,11 +531,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
 
         function showApp() {
-            document.getElementById('loginScreen').style.display = 'none';
-            document.getElementById('signupScreen').style.display = 'none';
-            document.getElementById('app').style.display = 'block';
-            carregarRegistros(); // Carrega os dados após login
-        }
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('loginScreen').classList.remove('login-screen');
+  document.getElementById('signupScreen').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  carregarRegistros(); // Carrega os dados após login
+}
 
         // Funções de autenticação
         async function handleLogin(event) {
@@ -488,23 +558,29 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
 
         async function handleSignUp(event) {
-            event.preventDefault();
-            const email = document.getElementById('signupEmail').value;
-            const password = document.getElementById('signupPassword').value;
+    event.preventDefault();
+    const email = document.getElementById('signupEmail').value;
+    const password = document.getElementById('signupPassword').value;
+    const confirmPassword = document.getElementById('confirmPassword').value;
 
-            try {
-                const { data, error } = await supabaseClient.auth.signUp({
-                    email,
-                    password
-                });
+    if (password !== confirmPassword) {
+        alert('A senha e a confirmação de senha não coincidem.');
+        return;
+    }
 
-                if (error) throw error;
-                alert('Cadastro realizado com sucesso! Verifique seu email.');
-                showLogin();
-            } catch (error) {
-                alert('Erro no cadastro: ' + error.message);
-            }
-        }
+    try {
+        const { data, error } = await supabaseClient.auth.signUp({
+            email,
+            password
+        });
+
+        if (error) throw error;
+        alert('Cadastro realizado com sucesso! Verifique seu email.');
+        showLogin();
+    } catch (error) {
+        alert('Erro no cadastro: ' + error.message);
+    }
+}
 
         async function handleLogout() {
             try {
