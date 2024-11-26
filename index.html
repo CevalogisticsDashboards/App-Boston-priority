@@ -461,7 +461,7 @@
                 </select>
             </div>
             <div class="modal-buttons">
-                <button class="btn btn-save" onclick="salvarRegistro()">Salvar</button>
+                <button type="button" class="btn btn-finish" onclick="salvarRegistro()">Salvar</button>
             </div>
         </form>
     </div>
@@ -688,40 +688,37 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
 
             async function salvarRegistro() {
-                const id = document.getElementById('id').value;
-                const registro = {
-                    'Data solicitada': document.getElementById('data_solicitada').value,
-                    'Nº da delivery': document.getElementById('numero_delivery').value,
-                    'Data e hora do corte': document.getElementById('data_hora_corte').value,
-                    'Solicitante': document.getElementById('solicitante').value,
-                    'Data da finalização': document.getElementById('data_finalizacao').value || null,
-                    'Status': document.getElementById('status').value,
-                    'Motivo de cancelamento': document.getElementById('motivo_cancelamento').value || null
-                };
-
-                try {
-                    let response;
-                    if (id) {
-                        response = await supabaseClient
-                            .from('Registros')
-                            .update(registro)
-                            .eq('id', id);
-                    } else {
-                        response = await supabaseClient
-                            .from('Registros')
-                            .insert([registro]);
-                    }
-
-                    if (response.error) throw response.error;
-
-                    alert(id ? 'Registro atualizado com sucesso!' : 'Registro criado com sucesso!');
-                    closeModal('form');
-                    carregarRegistros();
-                } catch (error) {
-                    console.error('Erro ao salvar registro:', error);
-                    alert('Erro ao salvar registro: ' + error.message);
-                }
-            }
+    const id = document.getElementById('id').value;
+    const registro = {
+        'Data solicitada': document.getElementById('data_solicitada').value,
+        'Nº da delivery': document.getElementById('numero_delivery').value,
+        'Data e hora do corte': document.getElementById('data_hora_corte').value,
+        'Solicitante': document.getElementById('solicitante').value,
+        'Data da finalização': document.getElementById('data_finalizacao').value || null,
+        'Status': document.getElementById('status').value,
+        'Motivo de cancelamento': document.getElementById('motivo_cancelamento').value || null
+    };
+    try {
+        let response;
+        if (id) {
+            response = await supabaseClient
+                .from('Registros')
+                .update(registro)
+                .eq('id', id);
+        } else {
+            response = await supabaseClient
+                .from('Registros')
+                .insert([registro]);
+        }
+        if (response.error) throw response.error;
+        alert(id ? 'Registro atualizado com sucesso!' : 'Registro criado com sucesso!');
+        closeModal('form');
+        carregarRegistros();
+    } catch (error) {
+        console.error('Erro ao salvar registro:', error);
+        alert('Erro ao salvar registro: ' + error.message);
+    }
+}
 
             async function editarRegistro(id) {
                 try {
