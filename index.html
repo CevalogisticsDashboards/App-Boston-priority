@@ -25,6 +25,8 @@
         }
          }
 
+    
+
         body {
             background-color: #f0f2f5;
         }
@@ -174,13 +176,13 @@ body {
 
 #userEmail {
     /* Adicione aqui o tamanho da fonte desejado */
-    font-size: 12px; /* por exemplo, font-size: 14px; */
+    font-size: 14px; 
     margin-top: 8px; /* Ajuste o valor conforme necessário */
 }
 
 @media (max-width: 1200px) {
     #user-email {
-        font-size: 10px; /* Tamanho da fonte em telas menores que 1200px (smartphones) */
+        font-size: 12px; /* Tamanho da fonte em telas menores que 1200px (smartphones) */
     }
 }
 .sidebar-menu {
@@ -454,17 +456,20 @@ body {
             }
 
             .modal-content {
-                position: relative;
-                background: white;
-                margin: 20px;
-                padding: 20px;
-                border-radius: 8px;
-                max-width: 500px;
-                margin: 50px auto;
-                max-height: 90vh;
-                overflow-y: auto;
-                box-shadow: 0 2px 4px #002060;
-            }
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: calc(100% - 1rem); /* Largura da tela menos 1rem em cada lado */
+  max-width: 450px; /* Largura máxima de 450px */
+  max-height: 90vh; /* Altura máxima de 90% da altura da tela */
+  overflow-y: auto;
+  border-radius: 8px;
+  background-color: white;
+  padding: 1.5rem; /* Espaçamento interno de 1.5rem */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
 
             
 
@@ -1173,14 +1178,17 @@ function calcularDataCorte(dataSolicitada) {
 
             async function finalizarRegistro(id) {
     try {
-        // Obtem a data e hora atual no formato ISO 8601
-        const agora = new Date().toISOString();
+        // Usa função para obter data atual do Brasil
+        const dataFinalizacaoBrasil = obterDataAtualBrasil();
+        
+        // Converte para o formato datetime-local
+        const dataFinalizacao = formatDateTimeLocal(dataFinalizacaoBrasil);
 
         const { error } = await supabaseClient
             .from('Registros')
             .update({
                 'Status': 'Finalizado',
-                'Data da finalização': agora // Inclui a data e hora
+                'Data da finalização': dataFinalizacao // Usa a data e hora do Brasil
             })
             .eq('id', id);
 
@@ -1202,31 +1210,38 @@ function calcularDataCorte(dataSolicitada) {
             }
 
             async function confirmarCancelamento() {
-                const motivo = document.getElementById('cancel_motivo').value;
-                if (!motivo) {
-                    alert('Por favor, selecione um motivo para o cancelamento.');
-                    return;
-                }
+    const motivo = document.getElementById('cancel_motivo').value;
+    if (!motivo) {
+        alert('Por favor, selecione um motivo para o cancelamento.');
+        return;
+    }
 
-                try {
-                    const { error } = await supabaseClient
-                        .from('Registros')
-                        .update({
-                            'Status': 'Cancelado',
-                            'Motivo de cancelamento': motivo
-                        })
-                        .eq('id', currentCancelId);
+    try {
+        // Usa função para obter data atual do Brasil
+        const dataCancelamentoBrasil = obterDataAtualBrasil();
+        
+        // Converte para o formato datetime-local
+        const dataCancelamento = formatDateTimeLocal(dataCancelamentoBrasil);
 
-                    if (error) throw error;
+        const { error } = await supabaseClient
+            .from('Registros')
+            .update({
+                'Status': 'Cancelado',
+                'Motivo de cancelamento': motivo,
+                'Data da finalização': dataCancelamento // Adiciona a data de cancelamento
+            })
+            .eq('id', currentCancelId);
 
-                    alert('Registro cancelado com sucesso!');
-                    closeModal('cancel');
-                    carregarRegistros();
-                } catch (error) {
-                    console.error('Erro ao cancelar registro:', error);
-                    alert('Erro ao cancelar registro: ' + error.message);
-                }
-            }
+        if (error) throw error;
+
+        alert('Registro cancelado com sucesso!');
+        closeModal('cancel');
+        carregarRegistros();
+    } catch (error) {
+        console.error('Erro ao cancelar registro:', error);
+        alert('Erro ao cancelar registro: ' + error.message);
+    }
+}
 
             function limparFormulario() {
                 document.getElementById('id').value = '';
