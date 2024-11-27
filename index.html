@@ -823,9 +823,14 @@ function closeDeveloperModal() {
     document.getElementById('loginScreen').classList.remove('login-screen');
     document.getElementById('signupScreen').style.display = 'none';
     document.getElementById('app').style.display = 'block';
-    document.querySelector('.hamburger-btn').style.display = 'block'; // Exibe o botão de hambúrguer
-    document.querySelector('.fab').style.display = 'flex'; // Exibe o botão FAB
-    carregarRegistros(); // Carrega os dados após login
+    document.querySelector('.hamburger-btn').style.display = 'block';
+
+    // Verificar domínio do usuário antes de mostrar o botão FAB
+    const userDomain = currentUser.email.split('@')[1];
+    document.querySelector('.fab').style.display = 
+        (currentTab === 'Pendente' && userDomain === 'bsci.com') ? 'flex' : 'none';
+
+    carregarRegistros();
 }
 
 function updateUserInfo() {
@@ -990,19 +995,21 @@ async function handleLogout() {
 }
             // Modificar outras funções CRUD similarmente...
             function changeTab(tab) {
-                currentTab = tab;
-                document.querySelectorAll('.nav-button').forEach(btn => {
-                    btn.classList.remove('active');
-                    if (btn.textContent.includes(tab)) {
-                        btn.classList.add('active');
-                    }
-                });
+    currentTab = tab;
+    document.querySelectorAll('.nav-button').forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.textContent.includes(tab)) {
+            btn.classList.add('active');
+        }
+    });
 
-                // Nova linha para controlar a visibilidade do botão FAB
-                document.querySelector('.fab').style.display = tab === 'Pendente' ? 'flex' : 'none';
+    // Verificar domínio do usuário antes de mostrar o botão FAB
+    const userDomain = currentUser.email.split('@')[1];
+    document.querySelector('.fab').style.display = 
+        (tab === 'Pendente' && userDomain === 'bsci.com') ? 'flex' : 'none';
 
-                carregarRegistros();
-            }
+    carregarRegistros();
+}
 
             function openModal(type) {
                 if (type === 'add') {
