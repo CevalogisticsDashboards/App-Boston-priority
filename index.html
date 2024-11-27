@@ -684,56 +684,47 @@ body {
         <div id="app" style="display: none;"></div>
 
         <!-- Modal de Formulário -->
-<div id="formModal" class="modal">
-    <div class="modal-content">
-        <button class="modal-close" onclick="closeModal('form')">&times;</button>
-        <h2 id="modalTitle">Adicionar Registro</h2>
-        <form id="deliveryForm">
-            <input type="hidden" id="id">
-            <div class="form-group">
-                <label>Data solicitada:</label>
-                <input type="date" id="data_solicitada" required>
+        <div id="formModal" class="modal">
+            <div class="modal-content">
+                <button class="modal-close" onclick="closeModal('form')">&times;</button>
+                <h2 id="modalTitle">Adicionar Registro</h2>
+                <form id="deliveryForm">
+                    <input type="hidden" id="id">
+                    <!-- Campos ocultos, mas mantendo sua funcionalidade -->
+                    <input type="hidden" id="data_solicitada" required>
+                    <input type="hidden" id="data_hora_corte" required>
+                    <input type="hidden" id="data_finalizacao" required>
+                    <input type="hidden" id="status" required>
+        
+                    <div class="form-group">
+                        <label>Nº da delivery:</label>
+                        <input type="text" id="numero_delivery" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Solicitante:</label>
+                        <input type="text" id="solicitante" required>
+                    </div>
+                    
+                    
+                    
+                    <div class="form-group" id="motivoCancelamentoGroup" style="display: none;">
+                        <label>Motivo de cancelamento:</label>
+                        <select id="motivo_cancelamento">
+                            <option value=""></option>
+                            <option value="Procedimento Cancelado">Procedimento Cancelado</option>
+                            <option value="Transferência entre Hospitais">Transferência entre Hospitais</option>
+                            <option value="Pedido incorreto - VL09">Pedido incorreto - VL09</option>
+                            <option value="Procedimento reagendado">Procedimento reagendado</option>
+                        </select>
+                    </div>
+                    
+                    <div class="modal-buttons">
+                        <button type="button" class="btn btn-finish" onclick="salvarRegistro()">Salvar</button>
+                    </div>
+                </form>
             </div>
-            <div class="form-group">
-                <label>Nº da delivery:</label>
-                <input type="text" id="numero_delivery" required>
-            </div>
-            <div class="form-group">
-                <label>Data e hora do corte:</label>
-                <input type="datetime-local" id="data_hora_corte" required>
-            </div>
-            <div class="form-group">
-                <label>Solicitante:</label>
-                <input type="text" id="solicitante" required>
-            </div>
-            <div class="form-group">
-                <label>Data da finalização:</label>
-                <input type="date" id="data_finalizacao">
-            </div>
-            <div class="form-group">
-                <label>Status:</label>
-                <select id="status" required>
-                    <option value="Pendente">Pendente</option>
-                    <option value="Finalizado">Finalizado</option>
-                    <option value="Cancelado">Cancelado</option>
-                </select>
-            </div>
-            <div class="form-group" id="motivoCancelamentoGroup" style="display: none;">
-                <label>Motivo de cancelamento:</label>
-                <select id="motivo_cancelamento">
-                    <option value=""></option>
-                    <option value="Procedimento Cancelado">Procedimento Cancelado</option>
-                    <option value="Transferência entre Hospitais">Transferência entre Hospitais</option>
-                    <option value="Pedido incorreto - VL09">Pedido incorreto - VL09</option>
-                    <option value="Procedimento reagendado">Procedimento reagendado</option>
-                </select>
-            </div>
-            <div class="modal-buttons">
-                <button type="button" class="btn btn-finish" onclick="salvarRegistro()">Salvar</button>
-            </div>
-        </form>
-    </div>
-</div>
+        </div>
 
         <!-- Modal de Cancelamento -->
 <div id="cancelModal" class="modal">
@@ -1011,17 +1002,32 @@ async function handleLogout() {
                 }
             }
 
+            
+
             async function salvarRegistro() {
     const id = document.getElementById('id').value;
+    const dataSolicitadaInput = document.getElementById('data_solicitada');
+    const dataCorteInput = document.getElementById('data_hora_corte');
+    
+    // Usa função específica para obter data atual do Brasil
+    const dataSolicitadaBrasil = obterDataAtualBrasil();
+    
+    // Define a data solicitada como o horário atual do Brasil
+    dataSolicitadaInput.value = formatDateTimeLocal(dataSolicitadaBrasil);
+    
+    // Calcula a data de corte automaticamente com base na data solicitada
+    dataCorteInput.value = calcularDataCorte(dataSolicitadaBrasil);
+
     const registro = {
-        'Data solicitada': document.getElementById('data_solicitada').value,
+        'Data solicitada': dataSolicitadaInput.value,
         'Nº da delivery': document.getElementById('numero_delivery').value,
-        'Data e hora do corte': document.getElementById('data_hora_corte').value,
+        'Data e hora do corte': dataCorteInput.value,
         'Solicitante': document.getElementById('solicitante').value,
         'Data da finalização': document.getElementById('data_finalizacao').value || null,
         'Status': document.getElementById('status').value,
         'Motivo de cancelamento': document.getElementById('motivo_cancelamento').value || null
     };
+    
     try {
         let response;
         if (id) {
@@ -1043,6 +1049,50 @@ async function handleLogout() {
         alert('Erro ao salvar registro: ' + error.message);
     }
 }
+
+// Nova função para obter data atual do Brasil de forma mais precisa
+function obterDataAtualBrasil() {
+    // Usar Intl.DateTimeFormat para garantir o horário correto do Brasil
+    const formatter = new Intl.DateTimeFormat('pt-BR', {
+        timeZone: 'America/Sao_Paulo',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false
+    });
+    
+    const parts = formatter.formatToParts(new Date());
+    const day = parts.find(p => p.type === 'day').value;
+    const month = parts.find(p => p.type === 'month').value;
+    const year = parts.find(p => p.type === 'year').value;
+    const hour = parts.find(p => p.type === 'hour').value;
+    const minute = parts.find(p => p.type === 'minute').value;
+    
+    return new Date(`${year}-${month}-${day}T${hour}:${minute}`);
+}
+
+function formatDateTimeLocal(date) {
+    // Converte a data para o formato datetime-local
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    
+    return `${year}-${month}-${day}T${hours}:${minutes}`;
+}
+
+function calcularDataCorte(dataSolicitada) {
+    // Cria uma nova data com 2 horas adicionadas
+    const dataCorte = new Date(dataSolicitada);
+    dataCorte.setHours(dataCorte.getHours() + 2);
+    
+    return formatDateTimeLocal(dataCorte);
+}
+
+// Demais funções permanecem as mesmas
 
             async function editarRegistro(id) {
                 try {
@@ -1091,25 +1141,28 @@ async function handleLogout() {
             }
 
             async function finalizarRegistro(id) {
-                try {
-                    const hoje = new Date().toISOString().split('T')[0];
-                    const { error } = await supabaseClient
-                        .from('Registros')
-                        .update({
-                            'Status': 'Finalizado',
-                            'Data da finalização': hoje
-                        })
-                        .eq('id', id);
+    try {
+        // Obtem a data e hora atual no formato ISO 8601
+        const agora = new Date().toISOString();
 
-                    if (error) throw error;
+        const { error } = await supabaseClient
+            .from('Registros')
+            .update({
+                'Status': 'Finalizado',
+                'Data da finalização': agora // Inclui a data e hora
+            })
+            .eq('id', id);
 
-                    alert('Registro finalizado com sucesso!');
-                    carregarRegistros();
-                } catch (error) {
-                    console.error('Erro ao finalizar registro:', error);
-                    alert('Erro ao finalizar registro: ' + error.message);
-                }
-            }
+        if (error) throw error;
+
+        alert('Registro finalizado com sucesso!');
+        carregarRegistros();
+    } catch (error) {
+        console.error('Erro ao finalizar registro:', error);
+        alert('Erro ao finalizar registro: ' + error.message);
+    }
+}
+
 
             function abrirModalCancelamento(id) {
                 currentCancelId = id;
