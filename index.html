@@ -136,34 +136,49 @@ body {
 
 /* Cabeçalho da Sidebar */
 .sidebar-header {
-    padding: 50px 40px; /* Aumente o padding horizontal */
+    padding: 40px 40px;
     background-color: rgba(255,255,255,0.1);
     display: flex;
-    align-items: center;
+    align-items: flex-start; /* Alinha os itens ao topo */
     justify-content: space-between;
 }
 
 .user-info {
     display: flex;
-    align-items: center;
+    align-items: flex-start; /* Alinha os itens ao topo */
+    position: relative;
+    top: 30px; /* Move para baixo */
+    left: -35px; /* Move para a esquerda */
 }
 
 .user-avatar {
-    width: 50px;
-    height: 50px;
+    width: 30px;
+    height: 30px;
     background-color: white;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-right: 30px;
+    margin-right: 10px;
     color: #002060;
     font-weight: bold;
+    padding: 8px
 }
 
+#userEmail {
+    /* Adicione aqui o tamanho da fonte desejado */
+    font-size: 12px; /* por exemplo, font-size: 14px; */
+    margin-top: 8px; /* Ajuste o valor conforme necessário */
+}
+
+@media (max-width: 1200px) {
+    #user-email {
+        font-size: 8px; /* Tamanho da fonte em telas menores que 768px (smartphones) */
+    }
+}
 .sidebar-menu {
     flex-grow: 1;
-    padding: 30px;
+    padding: 5px;
 }
 
 .sidebar-menu button {
@@ -444,20 +459,8 @@ body {
                 box-shadow: 0 2px 4px #002060;
             }
 
-            .modal-close {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    background: none;
-    border: none;
-    font-size: 24px;
-    cursor: pointer;
-    color: #666;
-    line-height: 1;
-    padding: 0;
-    z-index: 10;
+            
 
-}
 
 .modal-close:hover {
     color: #000;
@@ -830,6 +833,7 @@ function closeDeveloperModal() {
     document.getElementById('signupScreen').style.display = 'none';
     document.getElementById('app').style.display = 'block';
     document.querySelector('.hamburger-btn').style.display = 'block'; // Exibe o botão de hambúrguer
+    document.querySelector('.fab').style.display = 'flex'; // Exibe o botão FAB
     carregarRegistros(); // Carrega os dados após login
 }
 
@@ -904,6 +908,9 @@ async function handleLogout() {
         if (error) throw error;
         toggleSidebar(); // Fecha a sidebar antes de exibir a tela de login
         showLogin();
+
+        // Oculta o botão FAB após o logout
+        document.querySelector('.fab').style.display = 'none';
     } catch (error) {
         alert('Erro ao sair: ' + error.message);
     }
