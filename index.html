@@ -8,8 +8,9 @@
         <!-- Importação da biblioteca Supabase para autenticação e gerenciamento de banco de dados -->
         <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
         <style>
-            /* Estilos globais para reset e configurações padrão */
             
+            
+            /* Estilos globais para reset e configurações padrão */
 
             * {
             margin: 0;
@@ -17,6 +18,12 @@
             box-sizing: border-box;
             font-family: Arial, sans-serif;
         }
+
+        @media (max-width: 1200px) {
+        .header {
+        font-size: 0.8rem; /* Reduces the font size on screens smaller than 768px */
+        }
+         }
 
         body {
             background-color: #f0f2f5;
@@ -173,7 +180,7 @@ body {
 
 @media (max-width: 1200px) {
     #user-email {
-        font-size: 8px; /* Tamanho da fonte em telas menores que 768px (smartphones) */
+        font-size: 10px; /* Tamanho da fonte em telas menores que 1200px (smartphones) */
     }
 }
 .sidebar-menu {
