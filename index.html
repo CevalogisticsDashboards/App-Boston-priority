@@ -588,7 +588,7 @@ body {
     <button onclick="closeDeveloperModal()" class="btn btn-finish" style="margin-top: 20px;">Fechar</button>
 </div>
 
-<!-- Todo o HTML anterior do documento original permanece aqui -->
+
 
         <!-- Modal com informações do desenvolvedor -->
         <div class="developer-modal" id="developerModal">
@@ -600,7 +600,7 @@ body {
             <button onclick="closeDeveloperModal()" class="btn btn-finish" style="margin-top: 20px;">Fechar</button>
         </div>
 
-        <!-- Todo o HTML anterior do documento original permanece aqui -->
+        
         <!-- (Tela de Login, Tela de Cadastro, Cabeçalho, Conteúdo, Modais, etc.) -->
 
 <!-- Tela de Login -->
@@ -943,6 +943,30 @@ async function handleLogout() {
         data.forEach(registro => {
             const card = document.createElement('div');
             card.className = 'delivery-card';
+
+            // Verificar o domínio do email do usuário atual
+            const userDomain = currentUser.email.split('@')[1];
+            
+            let buttonGroup = '';
+            if (currentTab === 'Pendente') {
+                if (userDomain === 'cevalogistics.com') {
+                    // Para usuários @cevalogistics.com: só mostra o botão Finalizar
+                    buttonGroup = `
+                        <div class="button-group">
+                            <button class="btn btn-finish" onclick="finalizarRegistro('${registro.id}')">Finalizar</button>
+                        </div>
+                    `;
+                } else if (userDomain === 'bsci.com') {
+                    // Para usuários @bsci.com: mostra Editar, Finalizar e Cancelar
+                    buttonGroup = `
+                        <div class="button-group">
+                            <button class="btn btn-edit" onclick="editarRegistro('${registro.id}')">Editar</button>
+                            <button class="btn btn-cancel" onclick="abrirModalCancelamento('${registro.id}')">Cancelar</button>
+                        </div>
+                    `;
+                }
+            }
+
             card.innerHTML = `
                 <h3>Delivery #${registro['Nº da delivery']}</h3>
                 <div class="delivery-info">
@@ -954,14 +978,7 @@ async function handleLogout() {
                     ${registro['Status'] === 'Cancelado' ? 
                         `<p><strong>Motivo:</strong> ${registro['Motivo de cancelamento']}</p>` : ''}
                 </div>
-                ${currentTab === 'Pendente' ? `
-                    <div class="button-group">
-                        <button class="btn btn-edit" onclick="editarRegistro('${registro.id}')">Editar</button>
-                        <button class="btn btn-finish" onclick="finalizarRegistro('${registro.id}')">Finalizar</button>
-                        <button class="btn btn-cancel" onclick="abrirModalCancelamento('${registro.id}')">Cancelar</button>
-                        
-                    </div>
-                ` : ''}
+                ${buttonGroup}
             `;
             container.appendChild(card);
         });
