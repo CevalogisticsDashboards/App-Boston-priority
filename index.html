@@ -1,12 +1,10 @@
-
-    <!DOCTYPE html>
-    <html lang="pt-BR">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Priority Deliveries App</title>
-        <!-- Importação da biblioteca Supabase para autenticação e gerenciamento de banco de dados -->
-        <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Priority Deliveries App</title>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
         <style>
             
             
@@ -754,7 +752,7 @@ body {
         </select>
       </div>
       <div class="modal-buttons">
-        <button class="btn btn-confirm" onclick="confirmarCancelamento()">Confirmar</button>
+        <button class="btn btn-confirm" onclick="confirmarCancelamento()">Confirmar cancelamento</button>
       </div>
     </div>
   </div>
@@ -1077,7 +1075,7 @@ async function handleLogout() {
                 .insert([registro]);
         }
         if (response.error) throw response.error;
-        alert(id ? 'Registro atualizado com sucesso!' : 'Registro criado com sucesso!');
+        //alert(id ? 'Registro atualizado com sucesso!' : 'Registro criado com sucesso!');
         closeModal('form');
         carregarRegistros();
     } catch (error) {
@@ -1177,29 +1175,78 @@ function calcularDataCorte(dataSolicitada) {
             }
 
             async function finalizarRegistro(id) {
-    try {
-        // Usa função para obter data atual do Brasil
-        const dataFinalizacaoBrasil = obterDataAtualBrasil();
-        
-        // Converte para o formato datetime-local
-        const dataFinalizacao = formatDateTimeLocal(dataFinalizacaoBrasil);
+    // Select the existing modal
+    const modal = document.querySelector('.modal');
+    const modalContent = document.querySelector('.modal-content');
 
-        const { error } = await supabaseClient
-            .from('Registros')
-            .update({
-                'Status': 'Finalizado',
-                'Data da finalização': dataFinalizacao // Usa a data e hora do Brasil
-            })
-            .eq('id', id);
+    // Create confirmation content
+    modalContent.innerHTML = `
+        <button class="modal-close">&times;</button>
+        <div class="confirmation-content" style="text-align: center;">
+            <h3 style="margin-bottom: 0.5rem;">Finalizar Registro</h3>
+            <p style="margin-top: 0.5rem;">Tem certeza de que deseja finalizar este registro?</p>
+            <div class="modal-buttons">
+                <button id="confirmFinalizarBtn" class="btn btn-confirm">Sim</button>
+                <button id="cancelFinalizarBtn" class="btn btn-cancel">Não</button>
+            </div>
+        </div>
+    `;
 
-        if (error) throw error;
+    // Show the modal
+    modal.style.display = 'block';
 
-        alert('Registro finalizado com sucesso!');
-        carregarRegistros();
-    } catch (error) {
-        console.error('Erro ao finalizar registro:', error);
-        alert('Erro ao finalizar registro: ' + error.message);
-    }
+    // Get buttons
+    const confirmBtn = modalContent.querySelector('#confirmFinalizarBtn');
+    const cancelBtn = modalContent.querySelector('#cancelFinalizarBtn');
+    const closeBtn = modalContent.querySelector('.modal-close');
+
+    // Function to close the modal
+    const closeModal = () => {
+        modal.style.display = 'none';
+        // Reset modal content
+        modalContent.innerHTML = '';
+    };
+
+    // Event listener for confirmation
+    confirmBtn.addEventListener('click', async () => {
+        try {
+            // Usa função para obter data atual do Brasil
+            const dataFinalizacaoBrasil = obterDataAtualBrasil();
+            
+            // Converte para o formato datetime-local
+            const dataFinalizacao = formatDateTimeLocal(dataFinalizacaoBrasil);
+
+            const { error } = await supabaseClient
+                .from('Registros')
+                .update({
+                    'Status': 'Finalizado',
+                    'Data da finalização': dataFinalizacao // Usa a data e hora do Brasil
+                })
+                .eq('id', id);
+
+            if (error) throw error;
+
+            //alert('Registro finalizado com sucesso!');
+            carregarRegistros();
+            closeModal();
+        } catch (error) {
+            console.error('Erro ao finalizar registro:', error);
+            alert('Erro ao finalizar registro: ' + error.message);
+        }
+    });
+
+    // Event listener for cancellation
+    cancelBtn.addEventListener('click', closeModal);
+
+    // Event listener for close button
+    closeBtn.addEventListener('click', closeModal);
+
+    // Close modal if clicked outside
+    modal.addEventListener('click', (event) => {
+        if (event.target === modal) {
+            closeModal();
+        }
+    });
 }
 
 
@@ -1234,7 +1281,7 @@ function calcularDataCorte(dataSolicitada) {
 
         if (error) throw error;
 
-        alert('Registro cancelado com sucesso!');
+        //alert('Registro cancelado com sucesso!');
         closeModal('cancel');
         carregarRegistros();
     } catch (error) {
