@@ -551,7 +551,20 @@ body {
 .login-screen ~ .fab {
   display: none;
 }
+
+.search-input {
+    width: 100%;
+    
+    margin-bottom: 15px;
+    border: 1px solid #ddd;
+
+    font-size: 16px;
+    border-radius: 8px;
+                padding: 1rem;
+                box-shadow: 0 2px 4px #002060;
+}
         </style>
+        
     </head>
     <body>
 
@@ -756,6 +769,7 @@ body {
       </div>
     </div>
   </div>
+  
 
         <script>
 
@@ -923,7 +937,8 @@ async function handleLogout() {
 }
 
         // Modificação nas funções CRUD existentes para incluir verificação de autenticação
-        async function carregarRegistros() {
+        // Modificar a função carregarRegistros para aceitar um termo de pesquisa opcional
+async function carregarRegistros(termoPesquisa = '') {
     // Mostrar ícone de carregamento
     const container = document.getElementById('delivery-list');
     container.innerHTML = `
@@ -940,22 +955,40 @@ async function handleLogout() {
     }
 
     try {
-        const { data, error } = await supabaseClient
+        let query = supabaseClient
             .from('Registros')
             .select('*')
             .eq('Status', currentTab)
             .order('created_at', { ascending: false });
 
+        const { data, error } = await query;
+
         if (error) throw error;
 
         container.innerHTML = '';
 
-        if (data.length === 0) {
+        // Filtrar registros com base no termo de pesquisa
+        const registrosFiltrados = data.filter(registro => {
+            if (!termoPesquisa) return true; // Se não houver termo de pesquisa, mostra todos
+
+            // Converte o termo de pesquisa para minúsculas para busca case-insensitive
+            const termoPesquisaLower = termoPesquisa.toLowerCase();
+
+            // Verifica se o termo de pesquisa está presente em algum campo relevante
+            return (
+                registro['Nº da delivery'].toLowerCase().includes(termoPesquisaLower) ||
+                registro['Solicitante'].toLowerCase().includes(termoPesquisaLower) ||
+                (registro['Motivo de cancelamento'] && 
+                 registro['Motivo de cancelamento'].toLowerCase().includes(termoPesquisaLower))
+            );
+        });
+
+        if (registrosFiltrados.length === 0) {
             container.innerHTML = '<div class="delivery-card">Nenhuma delivery encontrada nesta categoria</div>';
             return;
         }
 
-        data.forEach(registro => {
+        registrosFiltrados.forEach(registro => {
             const card = document.createElement('div');
             card.className = 'delivery-card';
 
@@ -1003,6 +1036,23 @@ async function handleLogout() {
         alert('Erro ao carregar registros: ' + error.message);
     }
 }
+
+document.addEventListener('DOMContentLoaded', () => {
+    const campoPesquisa = document.createElement('input');
+    campoPesquisa.type = 'text';
+    campoPesquisa.placeholder = 'Pesquisar...';
+    campoPesquisa.id = 'campoPesquisa';
+    campoPesquisa.className = 'search-input';
+    
+    // Inserir o campo de pesquisa antes da lista de deliveries
+    const deliveryList = document.getElementById('delivery-list');
+    deliveryList.parentNode.insertBefore(campoPesquisa, deliveryList);
+
+    campoPesquisa.addEventListener('input', (event) => {
+        const termoPesquisa = event.target.value;
+        carregarRegistros(termoPesquisa);
+    });
+});
             // Modificar outras funções CRUD similarmente...
             function changeTab(tab) {
     currentTab = tab;
@@ -1012,6 +1062,12 @@ async function handleLogout() {
             btn.classList.add('active');
         }
     });
+
+    // Limpar campo de pesquisa
+    const campoPesquisa = document.getElementById('campoPesquisa');
+    if (campoPesquisa) {
+        campoPesquisa.value = '';
+    }
 
     // Verificar domínio do usuário antes de mostrar o botão FAB
     const userDomain = currentUser.email.split('@')[1];
