@@ -553,16 +553,17 @@ body {
 }
 
 .search-input {
-    width: 100%;
-    
-    margin-bottom: 15px;
+    width: 93%; /* Mantém a largura total */
+    max-width: 770px; /* Opcional: limita a largura máxima */
+    margin: 0 auto 20px; /* Centraliza horizontalmente e mantém espaçamento inferior */
     border: 1px solid #ddd;
-
     font-size: 16px;
     border-radius: 8px;
-                padding: 1rem;
-                box-shadow: 0 2px 4px #002060;
+    padding: 1rem;
+    box-shadow: 0 2px 4px #002060;
+    display: block; /* Necessário para margin: 0 auto funcionar */
 }
+
         </style>
         
     </head>
