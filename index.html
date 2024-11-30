@@ -1017,20 +1017,21 @@ async function carregarRegistros(termoPesquisa = '') {
             }
 
             card.innerHTML = `
-                <h3>Delivery #${registro['Nº da delivery']}</h3>
-                <div class="delivery-info">
-                    <p><strong>Data solicitada:</strong> ${formatarData(registro['Data solicitada'])}</p>
-                    <p><strong>Data e hora do corte:</strong> ${formatarDataHora(registro['Data e hora do corte'])}</p>
-                    <p><strong>Solicitante:</strong> ${registro['Solicitante']}</p>
-                    ${registro['Status'] === 'Finalizado' ? 
-                        `<p><strong>Data da finalização:</strong> ${formatarData(registro['Data da finalização'])}</p>` : ''}
-                    ${registro['Status'] === 'Cancelado' ? 
-                        `<p><strong>Motivo:</strong> ${registro['Motivo de cancelamento']}</p>` : ''}
-                </div>
-                ${buttonGroup}
-            `;
-            container.appendChild(card);
-        });
+  <h3>Delivery #${registro['Nº da delivery']}</h3>
+  <div class="delivery-info">
+      <p><strong>Data solicitada:</strong> ${formatarDataHora(registro['Data solicitada'])}</p>
+      <p><strong>Data e hora do corte:</strong> ${formatarDataHora(registro['Data e hora do corte'])}</p>
+      <p><strong>Solicitante:</strong> ${registro['Solicitante']}</p>
+      ${registro['Status'] === 'Finalizado' ? 
+          `<p><strong>Data da finalização:</strong> ${formatarDataHora(registro['Data da finalização'])}</p>` : ''}
+      ${registro['Status'] === 'Cancelado' ?
+          `<p><strong>Data do cancelamento:</strong> ${formatarDataHora(registro['Data da finalização'])}</p>
+          <p><strong>Motivo:</strong> ${registro['Motivo de cancelamento']}</p>` : ''}
+  </div>
+  ${buttonGroup}
+`;
+container.appendChild(card);
+                    });
     } catch (error) {
         container.innerHTML = '<div class="delivery-card">Erro ao carregar registros</div>';
         console.error('Erro ao carregar registros:', error);
