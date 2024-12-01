@@ -1501,19 +1501,11 @@ function calcularDataCorte(dataSolicitada) {
         }
     };
 
-    // Evento para botão "Sim, salvar observação"
+    // Evento para botão "Confirmar"
     simObservacaoBtn.addEventListener('click', () => {
         const observacao = observacaoTextarea.value.trim();
         finalizarRegistroInterno(observacao);
     });
-
-    // Evento para botão "Não, finalizar sem observação"
-    naoObservacaoBtn.addEventListener('click', () => {
-        finalizarRegistroInterno();
-    });
-
-    // Evento para botão "Cancelar"
-    cancelBtn.addEventListener('click', closeModal);
 
     // Evento para botão de fechar
     closeBtn.addEventListener('click', closeModal);
