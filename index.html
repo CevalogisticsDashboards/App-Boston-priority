@@ -564,6 +564,20 @@ body {
     display: block; /* Necessário para margin: 0 auto funcionar */
 }
 
+.form-group textarea {
+    width: 100%;
+    min-height: 100px;
+    resize: vertical;
+}
+
+.modal-content textarea {
+    width: 100%;
+    min-height: 100px;
+    margin-bottom: 10px;
+}
+
+
+
         </style>
         
     </head>
@@ -729,6 +743,66 @@ body {
                         <label>Solicitante:</label>
                         <input type="text" id="solicitante" required>
                     </div>
+
+                    <!-- Dentro da seção de formulário do formModal, adicione estes novos campos -->
+<div class="form-group">
+    <label>Aprovação de frete:</label>
+    <input type="text" id="aprovacao_frete">
+</div>
+<div class="form-group">
+    <label>Número do Pedido:</label>
+    <input type="text" id="numero_pedido">
+</div>
+<div class="form-group">
+    <label>Paciente:</label>
+    <select id="paciente">
+        <option value="SIM">SIM</option>
+        <option value="NÃO">NÃO</option>
+    </select>
+</div>
+<div class="form-group">
+    <label>CC (Responsável):</label>
+    <input type="text" id="cc_responsavel">
+</div>
+<div class="form-group">
+    <label>Tipo de pedido:</label>
+    <input type="text" id="tipo_pedido">
+</div>
+<div class="form-group">
+    <label>Transportadora:</label>
+    <input type="text" id="transportadora">
+</div>
+<div class="form-group">
+    <label>UF:</label>
+    <input type="text" id="uf">
+</div>
+<div class="form-group">
+    <label>Cidade:</label>
+    <input type="text" id="cidade">
+</div>
+<div class="form-group">
+    <label>Cliente:</label>
+    <input type="text" id="cliente">
+</div>
+<div class="form-group">
+    <label>Data da Entrega:</label>
+    <input type="date" id="data_entrega">
+</div>
+<div class="form-group">
+    <label>Hora de Entrega:</label>
+    <input type="time" id="hora_entrega">
+</div>
+<div class="form-group">
+    <label>Observação Boston:</label>
+    <textarea id="observacao_boston"></textarea>
+</div>
+<!-- Observação Ceva - Adicionar esta seção condicionalmente no script -->
+<div id="observacao_ceva_group" style="display: none;">
+    <div class="form-group">
+        <label>Observação Ceva:</label>
+        <textarea id="observacao_ceva"></textarea>
+    </div>
+</div>
                     
                     
                     
@@ -844,17 +918,62 @@ function closeDeveloperModal() {
         }
 
         function showApp() {
+    // Ocultar telas de login e signup
     document.getElementById('loginScreen').style.display = 'none';
     document.getElementById('loginScreen').classList.remove('login-screen');
     document.getElementById('signupScreen').style.display = 'none';
+    
+    // Mostrar aplicativo principal
     document.getElementById('app').style.display = 'block';
     document.querySelector('.hamburger-btn').style.display = 'block';
 
-    // Verificar domínio do usuário antes de mostrar o botão FAB
+    // Verificar domínio do usuário
     const userDomain = currentUser.email.split('@')[1];
+    
+    // Mostrar botão FAB apenas para usuários do domínio bsci.com na aba Pendente
     document.querySelector('.fab').style.display = 
         (currentTab === 'Pendente' && userDomain === 'bsci.com') ? 'flex' : 'none';
 
+    // Gerenciar visibilidade de elementos específicos da Ceva
+    const observacaoCevaGroup = document.getElementById('observacao_ceva_group');
+    const inserirObservacaoCevaBtn = document.getElementById('inserir_observacao_ceva_btn');
+
+    if (userDomain === 'cevalogistics.com') {
+        // Mostrar elementos específicos da Ceva
+        if (observacaoCevaGroup) {
+            observacaoCevaGroup.style.display = 'block';
+        }
+
+        // Adicionar botão para inserir observação da Ceva, se não existir
+        if (!inserirObservacaoCevaBtn) {
+            const novoBtn = document.createElement('button');
+            novoBtn.id = 'inserir_observacao_ceva_btn';
+            novoBtn.textContent = 'Inserir Observação Ceva';
+            novoBtn.className = 'btn btn-edit';
+            novoBtn.onclick = openCevaObservationModal;
+
+            // Adicionar o botão em um local apropriado (ajuste conforme seu layout)
+            const containerBotoes = document.querySelector('.modal-buttons') || 
+                                     document.querySelector('.action-buttons');
+            
+            if (containerBotoes) {
+                containerBotoes.appendChild(novoBtn);
+            }
+        }
+    } else {
+        // Ocultar elementos específicos da Ceva para outros domínios
+        if (observacaoCevaGroup) {
+            observacaoCevaGroup.style.display = 'none';
+        }
+
+        // Remover botão de observação da Ceva, se existir
+        const btnObservacaoCeva = document.getElementById('inserir_observacao_ceva_btn');
+        if (btnObservacaoCeva) {
+            btnObservacaoCeva.remove();
+        }
+    }
+
+    // Carregar registros após configurar a interface
     carregarRegistros();
 }
 
@@ -990,8 +1109,8 @@ async function carregarRegistros(termoPesquisa = '') {
         }
 
         registrosFiltrados.forEach(registro => {
-            const card = document.createElement('div');
-            card.className = 'delivery-card';
+        const card = document.createElement('div');
+        card.className = 'delivery-card'
 
             // Verificar o domínio do email do usuário atual
             const userDomain = currentUser.email.split('@')[1];
@@ -1017,18 +1136,36 @@ async function carregarRegistros(termoPesquisa = '') {
             }
 
             card.innerHTML = `
-  <h3>Delivery #${registro['Nº da delivery']}</h3>
-  <div class="delivery-info">
-      <p><strong>Data solicitada:</strong> ${formatarDataHora(registro['Data solicitada'])}</p>
-      <p><strong>Data e hora do corte:</strong> ${formatarDataHora(registro['Data e hora do corte'])}</p>
-      <p><strong>Solicitante:</strong> ${registro['Solicitante']}</p>
-      ${registro['Status'] === 'Finalizado' ? 
-          `<p><strong>Data da finalização:</strong> ${formatarDataHora(registro['Data da finalização'])}</p>` : ''}
-      ${registro['Status'] === 'Cancelado' ?
-          `<p><strong>Data do cancelamento:</strong> ${formatarDataHora(registro['Data da finalização'])}</p>
-          <p><strong>Motivo:</strong> ${registro['Motivo de cancelamento']}</p>` : ''}
-  </div>
-  ${buttonGroup}
+            <h3>Delivery #${registro['Nº da delivery']}</h3>
+            <div class="delivery-info">
+                    <p><strong>Data solicitada:</strong> ${formatarDataHora(registro['Data solicitada'])}</p>
+                    <p><strong>Data e hora do corte:</strong> ${formatarDataHora(registro['Data e hora do corte'])}</p>
+                    <p><strong>Solicitante:</strong> ${registro['Solicitante']}</p>
+                    
+                    
+                    <p><strong>Aprovação de frete:</strong> ${registro['Aprovação de frete'] || 'N/A'}</p>
+                    <p><strong>Número do Pedido:</strong> ${registro['Número do Pedido'] || 'N/A'}</p>
+                    <p><strong>Paciente:</strong> ${registro['Paciente'] || 'N/A'}</p>
+                    <p><strong>CC (Responsável):</strong> ${registro['CC (Responsável)'] || 'N/A'}</p>
+                    <p><strong>Tipo de pedido:</strong> ${registro['Tipo de pedido'] || 'N/A'}</p>
+                    <p><strong>Transportadora:</strong> ${registro['Transportadora'] || 'N/A'}</p>
+                    <p><strong>UF:</strong> ${registro['UF'] || 'N/A'}</p>
+                    <p><strong>Cidade:</strong> ${registro['Cidade'] || 'N/A'}</p>
+                    <p><strong>Cliente:</strong> ${registro['Cliente'] || 'N/A'}</p>
+                    <p><strong>Data da Entrega:</strong> ${formatarData(registro['Data da Entrega'])}</p>
+                    <p><strong>Hora de Entrega:</strong> ${registro['Hora de Entrega'] || 'N/A'}</p>
+                    <p><strong>Observação Boston:</strong> ${registro['Observação Boston'] || 'N/A'}</p>
+
+                    ${registro['Status'] === 'Finalizado' ? 
+                        `<p><strong>Data da finalização:</strong> ${formatarDataHora(registro['Data da finalização'])}</p>` : ''}
+                        ${registro['Observação Ceva'] ? 
+                    `<p><strong>Observação Ceva:</strong> ${registro['Observação Ceva']}</p>` : ''}
+                        </div>
+                    ${registro['Status'] === 'Cancelado' ?
+                        `<p><strong>Data do cancelamento:</strong> ${formatarDataHora(registro['Data da finalização'])}</p>
+                        <p><strong>Motivo:</strong> ${registro['Motivo de cancelamento']}</p>` : ''}
+                </div>
+                ${buttonGroup}
 `;
 container.appendChild(card);
                     });
@@ -1055,6 +1192,50 @@ document.addEventListener('DOMContentLoaded', () => {
         carregarRegistros(termoPesquisa);
     });
 });
+
+
+
+// Nova função para abrir modal de observação da Ceva
+function openCevaObservationModal() {
+    // Criar modal para observação da Ceva
+    const modal = document.createElement('div');
+    modal.className = 'modal';
+    modal.innerHTML = `
+        <div class="modal-content">
+            <button class="modal-close" onclick="this.closest('.modal').remove()">&times;</button>
+            <h2>Inserir Observação Ceva</h2>
+            <textarea id="cevaObservationText" rows="4" style="width: 100%; margin-bottom: 10px;"></textarea>
+            <div class="modal-buttons">
+                <button onclick="salvarObservacaoCeva()" class="btn btn-confirm">Salvar</button>
+                <button onclick="this.closest('.modal').remove()" class="btn btn-cancel">Cancelar</button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(modal);
+    modal.style.display = 'block';
+}
+// Função para salvar observação da Ceva
+async function salvarObservacaoCeva() {
+    const observacao = document.querySelector('#cevaObservationText').value;
+    
+    try {
+        // Atualizar o registro atual com a observação da Ceva
+        const { error } = await supabaseClient
+            .from('Registros')
+            .update({ 'Observação Ceva': observacao })
+            .eq('id', currentRecordId);  // Precisa rastrear o ID do registro atual
+
+        if (error) throw error;
+
+        alert('Observação Ceva salva com sucesso!');
+        document.querySelector('.modal').remove();
+        carregarRegistros();
+    } catch (error) {
+        console.error('Erro ao salvar observação:', error);
+        alert('Erro ao salvar observação: ' + error.message);
+    }
+}
+
             // Modificar outras funções CRUD similarmente...
             function changeTab(tab) {
     currentTab = tab;
@@ -1079,13 +1260,13 @@ document.addEventListener('DOMContentLoaded', () => {
     carregarRegistros();
 }
 
-            function openModal(type) {
-                if (type === 'add') {
-                    limparFormulario();
-                    document.getElementById('modalTitle').textContent = 'Adicionar Registro';
-                }
-                document.getElementById('formModal').style.display = 'block';
-            }
+function openModal(type) {
+    if (type === 'add') {
+        limparFormulario();
+        document.getElementById('modalTitle').textContent = 'Adicionar Registro';
+    }
+    document.getElementById('formModal').style.display = 'block';
+}
 
             function closeModal(type) {
                 document.getElementById(type + 'Modal').style.display = 'none';
@@ -1101,15 +1282,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const dataSolicitadaInput = document.getElementById('data_solicitada');
     const dataCorteInput = document.getElementById('data_hora_corte');
     
-    // Usa função específica para obter data atual do Brasil
     const dataSolicitadaBrasil = obterDataAtualBrasil();
-    
-    // Define a data solicitada como o horário atual do Brasil
     dataSolicitadaInput.value = formatDateTimeLocal(dataSolicitadaBrasil);
-    
-    // Calcula a data de corte automaticamente com base na data solicitada
     dataCorteInput.value = calcularDataCorte(dataSolicitadaBrasil);
-
     const registro = {
         'Data solicitada': dataSolicitadaInput.value,
         'Nº da delivery': document.getElementById('numero_delivery').value,
@@ -1117,7 +1292,20 @@ document.addEventListener('DOMContentLoaded', () => {
         'Solicitante': document.getElementById('solicitante').value,
         'Data da finalização': document.getElementById('data_finalizacao').value || null,
         'Status': document.getElementById('status').value,
-        'Motivo de cancelamento': document.getElementById('motivo_cancelamento').value || null
+        'Motivo de cancelamento': document.getElementById('motivo_cancelamento').value || null,
+        'Aprovação de frete': document.getElementById('aprovacao_frete').value,
+        'Número do Pedido': document.getElementById('numero_pedido').value,
+        'Paciente': document.getElementById('paciente').value,
+        'CC (Responsável)': document.getElementById('cc_responsavel').value,
+        'Tipo de pedido': document.getElementById('tipo_pedido').value,
+        'Transportadora': document.getElementById('transportadora').value,
+        'UF': document.getElementById('uf').value,
+        'Cidade': document.getElementById('cidade').value,
+        'Cliente': document.getElementById('cliente').value,
+        'Data da Entrega': document.getElementById('data_entrega').value,
+        'Hora de Entrega': document.getElementById('hora_entrega').value,
+        'Observação Boston': document.getElementById('observacao_boston').value,
+        'Observação Ceva': document.getElementById('observacao_ceva').value || null
     };
     
     try {
@@ -1133,7 +1321,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 .insert([registro]);
         }
         if (response.error) throw response.error;
-        //alert(id ? 'Registro atualizado com sucesso!' : 'Registro criado com sucesso!');
         closeModal('form');
         carregarRegistros();
     } catch (error) {
@@ -1184,34 +1371,43 @@ function calcularDataCorte(dataSolicitada) {
     return formatDateTimeLocal(dataCorte);
 }
 
-// Demais funções permanecem as mesmas
-
+            // Modificar a função editarRegistro para popular os novos campos
             async function editarRegistro(id) {
-                try {
-                    const { data, error } = await supabaseClient
-                        .from('Registros')
-                        .select('*')
-                        .eq('id', id)
-                        .single();
-
-                    if (error) throw error;
-
-                    document.getElementById('id').value = data.id;
-                    document.getElementById('data_solicitada').value = data['Data solicitada'];
-                    document.getElementById('numero_delivery').value = data['Nº da delivery'];
-                    document.getElementById('data_hora_corte').value = formatarDataHoraInput(data['Data e hora do corte']);
-                    document.getElementById('solicitante').value = data['Solicitante'];
-                    document.getElementById('data_finalizacao').value = data['Data da finalização'] || '';
-                    document.getElementById('status').value = data['Status'];
-                    document.getElementById('motivo_cancelamento').value = data['Motivo de cancelamento'] || '';
-
-                    document.getElementById('modalTitle').textContent = 'Editar Registro';
-                    openModal('form');
-                } catch (error) {
-                    console.error('Erro ao carregar registro para edição:', error);
-                    alert('Erro ao carregar registro para edição: ' + error.message);
-                }
-            }
+    try {
+        const { data, error } = await supabaseClient
+            .from('Registros')
+            .select('*')
+            .eq('id', id)
+            .single();
+        if (error) throw error;
+        document.getElementById('id').value = data.id;
+        document.getElementById('data_solicitada').value = data['Data solicitada'];
+        document.getElementById('numero_delivery').value = data['Nº da delivery'];
+        document.getElementById('data_hora_corte').value = formatarDataHoraInput(data['Data e hora do corte']);
+        document.getElementById('solicitante').value = data['Solicitante'];
+        document.getElementById('data_finalizacao').value = data['Data da finalização'] || '';
+        document.getElementById('status').value = data['Status'];
+        document.getElementById('motivo_cancelamento').value = data['Motivo de cancelamento'] || '';
+        document.getElementById('aprovacao_frete').value = data['Aprovação de frete'] || '';
+        document.getElementById('numero_pedido').value = data['Número do Pedido'] || '';
+        document.getElementById('paciente').value = data['Paciente'] || 'NÃO';
+        document.getElementById('cc_responsavel').value = data['CC (Responsável)'] || '';
+        document.getElementById('tipo_pedido').value = data['Tipo de pedido'] || '';
+        document.getElementById('transportadora').value = data['Transportadora'] || '';
+        document.getElementById('uf').value = data['UF'] || '';
+        document.getElementById('cidade').value = data['Cidade'] || '';
+        document.getElementById('cliente').value = data['Cliente'] || '';
+        document.getElementById('data_entrega').value = data['Data da Entrega'] || '';
+        document.getElementById('hora_entrega').value = data['Hora de Entrega'] || '';
+        document.getElementById('observacao_boston').value = data['Observação Boston'] || '';
+        document.getElementById('observacao_ceva').value = data['Observação Ceva'] || '';
+        document.getElementById('modalTitle').textContent = 'Editar Registro';
+        openModal('form');
+    } catch (error) {
+        console.error('Erro ao carregar registro para edição:', error);
+        alert('Erro ao carregar registro para edição: ' + error.message);
+    }
+}
 
             async function excluirRegistro(id) {
                 if (!confirm('Tem certeza que deseja excluir este registro?')) return;
@@ -1233,78 +1429,95 @@ function calcularDataCorte(dataSolicitada) {
             }
 
             async function finalizarRegistro(id) {
-    // Select the existing modal
+    // Selecionar o modal existente
     const modal = document.querySelector('.modal');
     const modalContent = document.querySelector('.modal-content');
 
-    // Create confirmation content
+    // Criar conteúdo de confirmação com opção de observação
     modalContent.innerHTML = `
         <button class="modal-close">&times;</button>
         <div class="confirmation-content" style="text-align: center;">
             <h3 style="margin-bottom: 0.5rem;">Finalizar Registro</h3>
-            <p style="margin-top: 0.5rem;">Tem certeza de que deseja finalizar este registro?</p>
+            <p style="margin-top: 0.5rem;">Deseja inserir alguma observação antes de finalizar?</p>
+            <div class="observation-section" style="margin: 1rem 0;">
+                <textarea id="finalizacaoObservacao" rows="4" style="width: 100%; margin-bottom: 10px;" placeholder="Observação opcional"></textarea>
+            </div>
             <div class="modal-buttons">
-                <button id="confirmFinalizarBtn" class="btn btn-confirm">Sim</button>
-                <button id="cancelFinalizarBtn" class="btn btn-cancel">Não</button>
+                <button id="simObservacaoBtn" class="btn btn-confirm">Sim, salvar observação</button>
+                <button id="naoObservacaoBtn" class="btn btn-default">Não, finalizar sem observação</button>
+                <button id="cancelFinalizarBtn" class="btn btn-cancel">Cancelar</button>
             </div>
         </div>
     `;
 
-    // Show the modal
+    // Mostrar o modal
     modal.style.display = 'block';
 
-    // Get buttons
-    const confirmBtn = modalContent.querySelector('#confirmFinalizarBtn');
+    // Obter botões
+    const simObservacaoBtn = modalContent.querySelector('#simObservacaoBtn');
+    const naoObservacaoBtn = modalContent.querySelector('#naoObservacaoBtn');
     const cancelBtn = modalContent.querySelector('#cancelFinalizarBtn');
     const closeBtn = modalContent.querySelector('.modal-close');
+    const observacaoTextarea = modalContent.querySelector('#finalizacaoObservacao');
 
-    // Function to close the modal
+    // Função para fechar o modal
     const closeModal = () => {
         modal.style.display = 'none';
-        // Reset modal content
+        // Redefinir conteúdo do modal
         modalContent.innerHTML = '';
     };
 
-    // Event listener for confirmation
-    confirmBtn.addEventListener('click', async () => {
+    // Função para finalizar o registro
+    const finalizarRegistroInterno = async (observacao = null) => {
         try {
-            // Usa função para obter data atual do Brasil
+            // Obter data atual do Brasil
             const dataFinalizacaoBrasil = obterDataAtualBrasil();
             
-            // Converte para o formato datetime-local
+            // Converter para o formato datetime-local
             const dataFinalizacao = formatDateTimeLocal(dataFinalizacaoBrasil);
+
+            // Preparar objeto de atualização
+            const updateData = {
+                'Status': 'Finalizado',
+                'Data da finalização': dataFinalizacao
+            };
+
+            // Adicionar observação se existir
+            if (observacao) {
+                updateData['Observação Ceva'] = observacao;
+            }
 
             const { error } = await supabaseClient
                 .from('Registros')
-                .update({
-                    'Status': 'Finalizado',
-                    'Data da finalização': dataFinalizacao // Usa a data e hora do Brasil
-                })
+                .update(updateData)
                 .eq('id', id);
 
             if (error) throw error;
 
-            //alert('Registro finalizado com sucesso!');
             carregarRegistros();
             closeModal();
         } catch (error) {
             console.error('Erro ao finalizar registro:', error);
             alert('Erro ao finalizar registro: ' + error.message);
         }
+    };
+
+    // Evento para botão "Sim, salvar observação"
+    simObservacaoBtn.addEventListener('click', () => {
+        const observacao = observacaoTextarea.value.trim();
+        finalizarRegistroInterno(observacao);
     });
 
-    // Event listener for cancellation
+    // Evento para botão "Não, finalizar sem observação"
+    naoObservacaoBtn.addEventListener('click', () => {
+        finalizarRegistroInterno();
+    });
+
+    // Evento para botão "Cancelar"
     cancelBtn.addEventListener('click', closeModal);
 
-    // Event listener for close button
+    // Evento para botão de fechar
     closeBtn.addEventListener('click', closeModal);
-
-    // Close modal if clicked outside
-    modal.addEventListener('click', (event) => {
-        if (event.target === modal) {
-            closeModal();
-        }
-    });
 }
 
 
