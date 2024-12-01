@@ -1155,12 +1155,13 @@ async function carregarRegistros(termoPesquisa = '') {
                     <p><strong>Data da Entrega:</strong> ${formatarData(registro['Data da Entrega'])}</p>
                     <p><strong>Hora de Entrega:</strong> ${registro['Hora de Entrega'] || 'N/A'}</p>
                     <p><strong>Observação Boston:</strong> ${registro['Observação Boston'] || 'N/A'}</p>
+                    <br>
 
                     ${registro['Status'] === 'Finalizado' ? 
                         `<p><strong>Data da finalização:</strong> ${formatarDataHora(registro['Data da finalização'])}</p>` : ''}
                         ${registro['Observação Ceva'] ? 
-                    `<p><strong>Observação Ceva:</strong> ${registro['Observação Ceva']}</p>` : ''}
-                        </div>
+                    `<p><strong>Observação Ceva:</strong> ${registro['Observação Ceva']}</p>` : ''}</div>
+                    
                     ${registro['Status'] === 'Cancelado' ?
                         `<p><strong>Data do cancelamento:</strong> ${formatarDataHora(registro['Data da finalização'])}</p>
                         <p><strong>Motivo:</strong> ${registro['Motivo de cancelamento']}</p>` : ''}
@@ -1443,9 +1444,7 @@ function calcularDataCorte(dataSolicitada) {
                 <textarea id="finalizacaoObservacao" rows="4" style="width: 100%; margin-bottom: 10px;" placeholder="Observação opcional"></textarea>
             </div>
             <div class="modal-buttons">
-                <button id="simObservacaoBtn" class="btn btn-confirm">Sim, salvar observação</button>
-                <button id="naoObservacaoBtn" class="btn btn-default">Não, finalizar sem observação</button>
-                <button id="cancelFinalizarBtn" class="btn btn-cancel">Cancelar</button>
+                <button id="simObservacaoBtn" class="btn btn-confirm">Confirmar</button>
             </div>
         </div>
     `;
