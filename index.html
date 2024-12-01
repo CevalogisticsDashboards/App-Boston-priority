@@ -179,7 +179,7 @@ body {
 }
 
 @media (max-width: 1200px) {
-    #user-email {
+    #userEmail {
         font-size: 12px; /* Tamanho da fonte em telas menores que 1200px (smartphones) */
     }
 }
@@ -864,7 +864,6 @@ function toggleSidebar() {
     const sidebar = document.getElementById('sidebar');
     const overlay = document.getElementById('overlay');
     const hamburgerBtn = document.querySelector('.hamburger-btn');
-
     sidebar.classList.toggle('open');
     overlay.classList.toggle('active');
     hamburgerBtn.classList.toggle('active');
@@ -996,18 +995,15 @@ function getInitials(email) {
     return parts.map(part => part.charAt(0).toUpperCase()).join('');
 }
 
-        // Funções de autenticação
-        async function handleLogin(event) {
+async function handleLogin(event) {
     event.preventDefault();
     const email = document.getElementById('loginEmail').value;
     const password = document.getElementById('loginPassword').value;
-
     try {
         const { data, error } = await supabaseClient.auth.signInWithPassword({
             email,
             password
         });
-
         if (error) throw error;
         currentUser = data.user; // Armazene as informações do usuário
         updateUserInfo(); // Chame a função updateUserInfo()
@@ -1444,7 +1440,7 @@ function calcularDataCorte(dataSolicitada) {
                 <textarea id="finalizacaoObservacao" rows="4" style="width: 100%; margin-bottom: 10px;" placeholder="Observação opcional"></textarea>
             </div>
             <div class="modal-buttons">
-                <button id="simObservacaoBtn" class="btn btn-confirm">Confirmar</button>
+                <button id="simObservacaoBtn" class="btn btn-confirm">Confirmar Finalização</button>
             </div>
         </div>
     `;
